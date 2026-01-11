@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>´ú±Ò¹ÜÀí</title>
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <title>ä»£å¸ç®¡ç†</title>
     <style>
         * {
             margin: 0;
@@ -35,7 +37,7 @@
             position: relative;
         }
         
-        /* Í·²¿ÑùÊ½ */
+        /* å¤´éƒ¨æ ·å¼ */
         header {
             padding: 20px 0 10px 0;
             /*border-bottom: 1px solid rgba(74, 35, 128, 0.1);*/
@@ -141,7 +143,7 @@
             color: #4a2380;
         }
 
-        /* µ¼Èë´ú±Ò */
+        /* å¯¼å…¥ä»£å¸ */
         .input-group {
             margin-bottom: 15px;
         }
@@ -211,7 +213,7 @@
             box-shadow: none;
         }
 
-        /* ´ú±ÒĞÅÏ¢Ô¤ÀÀ */
+        /* ä»£å¸ä¿¡æ¯é¢„è§ˆ */
         .token-preview {
             margin-top: 15px;
             padding: 12px;
@@ -247,7 +249,7 @@
             font-family: monospace;
         }
 
-        /* ´ú±ÒÁĞ±í */
+        /* ä»£å¸åˆ—è¡¨ */
         .token-list {
             margin-top: 10px;
         }
@@ -318,7 +320,7 @@
             white-space: nowrap;
         }
 
-        /* µ¯´°ÑùÊ½ */
+        /* å¼¹çª—æ ·å¼ */
         .modal {
             position: fixed;
             top: 0;
@@ -401,7 +403,7 @@
             text-decoration: underline;
         }
 
-        /* É¾³ı°´Å¥£¨µ¯´°ÄÚ£© */
+        /* åˆ é™¤æŒ‰é’®ï¼ˆå¼¹çª—å†…ï¼‰ */
         .delete-btn {
             background-color: rgba(255, 107, 107, 0.1);
             color: #ff6b6b;
@@ -418,7 +420,7 @@
             background-color: rgba(255, 107, 107, 0.2);
         }
 
-        /* ÌáÊ¾¿ò */
+        /* æç¤ºæ¡† */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -437,7 +439,7 @@
             display: block;
         }
         
-        /* ÏìÓ¦Ê½Éè¼Æ */
+        /* å“åº”å¼è®¾è®¡ */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -459,20 +461,20 @@
     </style>
 </head>
 <body>
-    <!-- Í·²¿µ¼º½ -->
+    <!-- å¤´éƒ¨å¯¼èˆª -->
     <div class="" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
         <div class="header1 flex justify-between align-center" style="">
     		<div class="flex justify-start align-center" style="">
     			<div class="flex justify-start align-center">
     				<div class="logo-icon">C</div>
-                    <div class="logo-text mdui-p-l-1">ÁÔ±ªSwap</div>
+                    <div class="logo-text mdui-p-l-1">çŒè±¹Swap</div>
     			</div>
     		</div>
     		<div class="flex justify-end align-center">
     			<span onclick="copyAddress()"
     				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
     				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
-    			    ??<span id="selectAddress" style="padding-left: 2px;">¡­¡­</span>
+    			    ğŸ”<span id="selectAddress" style="padding-left: 2px;">â€¦â€¦</span>
     			</span>
     			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
     		</div>
@@ -480,116 +482,116 @@
         <header>
             <div class="flex justify-start align-center">
                 <nav class="nav-links">
-                    <a href="swap.html">½»Ò×</a>
-                    <a href="Liquidity.html">Á÷¶¯ĞÔ</a>
-                    <a href="#" class="active">´ú±Ò¹ÜÀí</a>
-                    <a href="swapPairManage.html">×Ê½ğ³Ø¹ÜÀí</a>
+                    <a href="swap.html">äº¤æ˜“</a>
+                    <a href="Liquidity.html">æµåŠ¨æ€§</a>
+                    <a href="#" class="active">ä»£å¸ç®¡ç†</a>
+                    <a href="swapPairManage.html">èµ„é‡‘æ± ç®¡ç†</a>
                 </nav>
             </div>
         </header>
     </div>
 
     <div class="container">
-        <!-- µ¼Èë´ú±Ò -->
+        <!-- å¯¼å…¥ä»£å¸ -->
         <div class="card">
             <div class="card-title">
-                <i>?</i> µ¼Èë´ú±Ò
+                <i>â•</i> å¯¼å…¥ä»£å¸
             </div>
 
             <div class="input-group">
-                <label class="input-label">ºÏÔ¼µØÖ·</label>
+                <label class="input-label">åˆçº¦åœ°å€</label>
                 <input type="text" class="input-text" id="contractAddress" placeholder="0x...">
             </div>
 
-            <button class="btn" onclick="findTokenDetail()">²éÑ¯´ú±ÒĞÅÏ¢</button>
+            <button class="btn" onclick="findTokenDetail()">æŸ¥è¯¢ä»£å¸ä¿¡æ¯</button>
 
-            <!-- ´ú±ÒĞÅÏ¢Ô¤ÀÀ -->
+            <!-- ä»£å¸ä¿¡æ¯é¢„è§ˆ -->
             <div class="token-preview" id="tokenPreview">
-                <div class="preview-title">´ú±ÒĞÅÏ¢Ô¤ÀÀ</div>
+                <div class="preview-title">ä»£å¸ä¿¡æ¯é¢„è§ˆ</div>
                 <input type="hidden" id="findTokenContract" value="0x0000000000000000000000000000000000000000"/>
                 <div class="preview-item">
-                    <div class="preview-label">È«³Æ</div>
+                    <div class="preview-label">å…¨ç§°</div>
                     <div class="preview-value" id="tokenName">---</div>
                 </div>
                 <div class="preview-item">
-                    <div class="preview-label">¼ò³Æ</div>
+                    <div class="preview-label">ç®€ç§°</div>
                     <div class="preview-value" id="tokenSymbol">---</div>
                 </div>
                 <div class="preview-item">
-                    <div class="preview-label">¾«¶È</div>
+                    <div class="preview-label">ç²¾åº¦</div>
                     <div class="preview-value" id="tokenDecimals">---</div>
                 </div>
                 <div class="preview-item">
-                    <div class="preview-label">Óà¶î</div>
+                    <div class="preview-label">ä½™é¢</div>
                     <div class="preview-value" id="tokenBalance">---</div>
                 </div>
 				<div class="" style="text-align: right;margin-top: 10px;">
-					<button class="smallbtn" style="" onclick="addToken2System()">Ñ¡Ôñ</button>
-					<button class="smallbtn" style="margin-left: 10px;" onclick="addToken2System()">Ñ¡Ôñ²¢±£´æ</button>
+					<button class="smallbtn" style="" onclick="addToken2System()">é€‰æ‹©</button>
+					<button class="smallbtn" style="margin-left: 10px;" onclick="addToken2System()">é€‰æ‹©å¹¶ä¿å­˜</button>
 				</div>
                 
             </div>
         </div>
 
-        <!-- ´ú±ÒÁĞ±í -->
+        <!-- ä»£å¸åˆ—è¡¨ -->
         <div class="card">
             <div class="card-title">
-                <i>??</i> ÎÒµÄ´ú±ÒÁĞ±í
+                <i>ğŸª™</i> æˆ‘çš„ä»£å¸åˆ—è¡¨
             </div>
 
             <div class="token-list" id="swapTokenList">
-                <!-- ÓÉ JS ×Ô¶¯¼ÓÔØ -->
+                <!-- ç”± JS è‡ªåŠ¨åŠ è½½ -->
             </div>
             <div class="token-list" id="swapTokenList1">
-                <!-- ÓÉ JS ×Ô¶¯¼ÓÔØ -->
+                <!-- ç”± JS è‡ªåŠ¨åŠ è½½ -->
             </div>
         </div>
     </div>
 
-    <!-- ´ú±ÒÏêÇéµ¯´° -->
+    <!-- ä»£å¸è¯¦æƒ…å¼¹çª— -->
     <div class="modal" id="tokenDetailModal">
         <div class="modal-content">
-            <span class="modal-close" id="closeModal">¡Á</span>
-            <div class="modal-title">´ú±ÒÏêÇé</div>
+            <span class="modal-close" id="closeModal">Ã—</span>
+            <div class="modal-title">ä»£å¸è¯¦æƒ…</div>
 
             <div class="detail-item">
-                <div class="detail-label">È«³Æ</div>
+                <div class="detail-label">å…¨ç§°</div>
                 <div class="detail-value" id="detailName"></div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">¼ò³Æ</div>
+                <div class="detail-label">ç®€ç§°</div>
                 <div class="detail-value" id="detailSymbol"></div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">¾«¶È</div>
+                <div class="detail-label">ç²¾åº¦</div>
                 <div class="detail-value" id="detailDecimals"></div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Óà¶î</div>
+                <div class="detail-label">ä½™é¢</div>
                 <div class="detail-value" id="detailBalance"></div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">ºÏÔ¼µØÖ·</div>
+                <div class="detail-label">åˆçº¦åœ°å€</div>
                 <div style="display: flex; align-items: center;">
                     <div class="detail-value" id="detailAddress"></div>
-                    <button class="copy-btn copyBtn" id="copyAddressBtn">¸´ÖÆ</button>
+                    <button class="copy-btn copyBtn" id="copyAddressBtn">å¤åˆ¶</button>
                 </div>
             </div>
             <input type="hidden" id="selectTokenContract" value="0x0000000000000000000000000000000000000000"/>
-            <!-- É¾³ı°´Å¥ -->
-            <button class="delete-btn" id="deleteUserToken" onclick="deleteUserToken()">É¾³ı´Ë´ú±Ò</button>
+            <!-- åˆ é™¤æŒ‰é’® -->
+            <button class="delete-btn" id="deleteUserToken" onclick="deleteUserToken()">åˆ é™¤æ­¤ä»£å¸</button>
         </div>
     </div>
 
     <script>
 
-        // ¸ñÊ½»¯µØÖ·ÎªÇ°6ºó6
+        // æ ¼å¼åŒ–åœ°å€ä¸ºå‰6å6
         function formatAddress(address) {
             if (!address) return '';
-            return address.substring(0, 6) + '¡­' + address.substring(address.length - 6);
+            return address.substring(0, 6) + 'â€¦' + address.substring(address.length - 6);
         }
 
-        // ¸ñÊ½»¯Óà¶îÎª 6 Î»ÓĞĞ§Êı×Ö
+        // æ ¼å¼åŒ–ä½™é¢ä¸º 6 ä½æœ‰æ•ˆæ•°å­—
         function formatBalance(balance) {
             if (!balance) return '0';
 
@@ -603,12 +605,12 @@
         }
         
 
-        // ¹Ø±Õµ¯´°
+        // å…³é—­å¼¹çª—
         document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('tokenDetailModal').classList.remove('show');
         });
 
-        // µã»÷µ¯´°ÍâÇøÓò¹Ø±Õ
+        // ç‚¹å‡»å¼¹çª—å¤–åŒºåŸŸå…³é—­
         window.addEventListener('click', function(e) {
             const modal = document.getElementById('tokenDetailModal');
             if (e.target === modal) {
@@ -616,8 +618,91 @@
             }
         });
 
-        // Ò³Ãæ¼ÓÔØÊ±äÖÈ¾ÁĞ±í
+        // é¡µé¢åŠ è½½æ—¶æ¸²æŸ“åˆ—è¡¨
         // window.onload = renderTokenList;
     </script>
 </body>
 </html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/BigInt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/SwapTokenList.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="js/DappTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappShareMain.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var $ = mdui.$;
+	renderAllTokens2manage();
+	
+	// æ‰“å¼€è¯¦æƒ…å¼¹çª—
+    function openDetailModal(_tokenContract) {
+        const token = tokenListObject[_tokenContract];
+        console.log(token)
+        if(BNBCONTRACT === _tokenContract){
+            document.getElementById('detailAddress').textContent = '';
+        }else{
+            document.getElementById('detailAddress').textContent = formatAddress(_tokenContract);
+            document.getElementById('copyAddressBtn').onclick = function() {
+                copycontext(_tokenContract);
+            };
+        }
+        $("#selectTokenContract").val(_tokenContract);
+        document.getElementById('detailName').textContent = token.name;
+        document.getElementById('detailSymbol').textContent = token.symbol;
+        document.getElementById('detailDecimals').textContent = token.decimals;
+        document.getElementById('detailBalance').textContent = formatBalance(token.balance) + ' ' + token.symbol;
+        document.getElementById('tokenDetailModal').classList.add('show');
+    }
+    
+    function deleteUserToken() {
+        var selectTokenContract = $("#selectTokenContract").val();
+        console.log(selectTokenContract)
+        tishi(userDelToken(selectTokenContract));
+        renderAllTokens2manage();
+        document.getElementById('tokenDetailModal').classList.remove('show');
+    }
+    
+    var findTokenDetail = function() {
+        const address = document.getElementById('contractAddress').value.trim();
+        if (!address) return;
+
+        // æ¨¡æ‹ŸåŒºå—é“¾æŸ¥è¯¢
+        const mockToken = {
+            name: 'NFT Art Hub',
+            symbol: 'NAH',
+            decimals: 18,
+            balance: '1250.123456789',
+            address: address
+        };
+        
+        $("#findTokenContract").val(address);
+        document.getElementById('tokenName').textContent = mockToken.name;
+        document.getElementById('tokenSymbol').textContent = mockToken.symbol;
+        document.getElementById('tokenDecimals').textContent = mockToken.decimals;
+        document.getElementById('tokenBalance').textContent = formatBalance(mockToken.balance) + ' ' + mockToken.symbol;
+
+        document.getElementById('tokenPreview').classList.add('show');
+    }
+    
+    var addToken2System = function() {
+            const address = document.getElementById('findTokenContract').value.trim();
+            if (!address) return;
+            // æ£€æŸ¥æ˜¯å¦å·²å­˜åœ¨
+            if (tokenListObject[address]) {
+                tishi('è¯¥ä»£å¸å·²å¯¼å…¥');
+                return;
+            }
+            var fullName = document.getElementById('tokenName').textContent;
+            var shortName = document.getElementById('tokenSymbol').textContent;
+            var decimals = document.getElementById('tokenDecimals').textContent;
+            
+            userAddToken(address,fullName,shortName,decimals);
+            renderAllTokens2manage();
+
+            document.getElementById('tokenPreview').classList.remove('show');
+            document.getElementById('contractAddress').value = '';
+
+            tishi('å¯¼å…¥æˆåŠŸ');
+        }
+</script>
