@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BPM IDO平台</title>
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* 轮播图样式 - 优化速度+添加指示标签 */
+        .carousel {
+            width: 100%;
+            height: 120px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .carousel-inner {
+            display: flex;
+            width: 300%;
+            height: 100%;
+            animation: carousel 20s infinite linear; /* 延长至20秒，速度变慢 */
+        }
+        .carousel-item {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #6c2bd9, #8b5cf6);
+            color: white;
+            text-align: center;
+            padding: 0 0px;
+        }
+        .carousel-item:nth-child(2) {
+            background: linear-gradient(45deg, #4a2380, #6c2bd9);
+        }
+        .carousel-item:nth-child(3) {
+            background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+        }
+        .carousel-text {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        /* 轮播图样式 */
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(74, 35, 128, 0.1);
+        }
+        
+        .carousel-wrapper {
+            display: flex;
+            width: 500%;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .carousel-item {
+            width: 20%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0d6ff;
+            color: #4a2380;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .carousel-dot.active {
+            background-color: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* 标签切换样式 */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 10px;
+            border: none;
+            background-color: white;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        /* 显示对应状态的项目 */
+        .card.ongoing, .card.upcoming {
+            display: block;
+        }
+
+
+        /* IDO项目专属样式 - 新增LOGO区域 */
+        .project-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .project-logo-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .project-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a2380;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .project-logo img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .project-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .project-tag {
+            background-color: rgba(74, 35, 128, 0.1);
+            color: #4a2380;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .project-tag.upcoming {
+            background-color: rgba(255, 159, 67, 0.1);
+            color: #ff9f43;
+        }
+
+        .project-tag.ended {
+            background-color: rgba(153, 153, 153, 0.1);
+            color: #999;
+        }
+
+        .project-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .project-info:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            font-family: monospace;
+        }
+
+        .value-highlight {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+
+        .countdown {
+            font-size: 14px;
+            color: #6c2bd9;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.3);
+        }
+
+        .disabled-btn {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .disabled-btn:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        /* 空列表提示 */
+        .empty-tip {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+        .empty-tip i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            display: block;
+            color: #e0e0e0;
+        }
+        .empty-tip p {
+            margin-bottom: 10px;
+        }
+		.create-order-fixed-btn {
+		    padding: 12px;
+		    background: linear-gradient(90deg, #4a2380, #6c2bd9);
+		    color: #fff;
+		    border: none;
+		    border-radius: 12px;
+		    font-size: 15px;
+		    font-weight: 600;
+		    cursor: pointer;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    gap: 8px;
+		    box-shadow: 0 4px 12px rgba(108, 43, 217, 0.4);
+		    transition: all 0.2s ease;
+		}
+    </style>
+</head>
+<body>
+    <div class="header1 flex justify-between align-center" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<img id="logjs" src="img/logo.png" alt="" style="display: block;width: 40px;">
+    				<span class=" mdui-typo-subheading" style="font-weight: 800;padding-left: 2px;">BPMWEB3</span>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+    </div>
+    
+    <div class="container">
+        <!-- 轮播图 -->
+        <div class="carousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-item"><img src="img/1.jpg" style="width: 100%;"></div>
+                <div class="carousel-item"><img src="img/2.jpg" style="width: 100%;"></div>
+                <div class="carousel-item"><img src="img/3.jpg" style="width: 100%;"></div>
+                <div class="carousel-item"><img src="img/4.jpg" style="width: 100%;"></div>
+                <div class="carousel-item"><img src="img/1.jpg" style="width: 100%;"></div>
+            </div>
+            <div class="carousel-dots">
+                <div class="carousel-dot active" data-index="0"></div>
+                <div class="carousel-dot" data-index="1"></div>
+                <div class="carousel-dot" data-index="2"></div>
+                <div class="carousel-dot" data-index="3"></div>
+                <div class="carousel-dot" data-index="4"></div>
+            </div>
+        </div>
+        <script>
+        
+            // 轮播图功能
+            const carouselWrapper = document.querySelector('.carousel-wrapper');
+            const carouselDots = document.querySelectorAll('.carousel-dot');
+            let currentSlide = 0;
+            const totalSlides = 5;
+            
+            // 自动轮播
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateCarousel();
+            }, 3000);
+            
+            // 点击_dot切换
+            carouselDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    currentSlide = parseInt(this.getAttribute('data-index'));
+                    updateCarousel();
+                });
+            });
+            
+            function updateCarousel() {
+                carouselWrapper.style.transform = `translateX(-${currentSlide * 20}%)`;
+                carouselDots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+        </script>
+        <!-- 标签切换 -->
+        <div class="tab-container">
+            <button class="projectTab tab-btn active" id="tab-current" onclick="showOngoingProjectContent(this)">进行中+即将开始</button>
+            <button class="projectTab tab-btn" id="tab-history" onclick="showEndedProjectContent(this)">已结束项目</button>
+        </div>
+        
+        <div id="ongoingProject" class="mdui-m-b-4 mdui-p-b-4">
+            <div id="ongoingTokenContent">
+                <!-- 进行中项目 -->
+                <!--<div class="card ongoing">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/logo.png" ></div>-->
+                <!--            <div class="project-name">MetaVerse Chain</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag">进行中</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">MVC</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.05 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">硬顶额度</div>-->
+                <!--        <div class="info-value">50000 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">剩余时间</div>-->
+                <!--        <div class="info-value countdown">01天 08时 22分 15秒</div>-->
+                <!--    </div>-->
+                <!--    <button onclick="window.location.href = 'inIdoProject.html'" class="btn">立即参与</button>-->
+                <!--</div>-->
+        
+                <!--<div class="card ongoing">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/logo.png" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">Web3 AI Protocol</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag">进行中</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">WAI</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.04 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">硬顶额度</div>-->
+                <!--        <div class="info-value">80000 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">剩余时间</div>-->
+                <!--        <div class="info-value countdown">02天 15时 40分 22秒</div>-->
+                <!--    </div>-->
+                <!--    <button onclick="window.location.href = 'inIdoProject.html'" class="btn">立即参与</button>-->
+                <!--</div>-->
+        
+                <!--<div class="card ongoing">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/frog.jpg" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">DeFi Lending Pool</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag">进行中</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">DLP</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.03 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">硬顶额度</div>-->
+                <!--        <div class="info-value">60000 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">剩余时间</div>-->
+                <!--        <div class="info-value countdown">00天 22时 18分 05秒</div>-->
+                <!--    </div>-->
+                <!--    <button  onclick="window.location.href = 'inIdoProject.html'" class="btn">立即参与</button>-->
+                <!--</div>-->
+                
+            </div>
+            
+            <div id="upcomingTokenContent">
+                <!-- 即将开始项目 -->
+                <!--<div class="card upcoming">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/han.jpg" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">DeFi Protocol X</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag upcoming">即将开始</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">DFX</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.12 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">硬顶额度</div>-->
+                <!--        <div class="info-value">100000 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">启动时间</div>-->
+                <!--        <div class="info-value countdown">03天 12时 05分 30秒</div>-->
+                <!--    </div>-->
+                <!--    <button class="btn disabled-btn">敬请期待</button>-->
+                <!--</div>-->
+        
+                <!--<div class="card upcoming">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/logo.png" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">NFT Marketplace Pro</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag upcoming">即将开始</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">NMP</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.15 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">硬顶额度</div>-->
+                <!--        <div class="info-value">120000 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">启动时间</div>-->
+                <!--        <div class="info-value countdown">05天 08时 30分 18秒</div>-->
+                <!--    </div>-->
+                <!--    <button class="btn disabled-btn">敬请期待</button>-->
+                <!--</div>-->
+            </div>
+            <!-- 无项目时显示提示（启用此部分，注释上方项目列表） -->
+            <div id="ongoingProjectemptytip" class="empty-tip">
+                <i>📑</i>
+                <p>暂无正在进行或等待的IDO项目</p>
+                <p>前往我的项目页面创建一个IDO的项目吧</p>
+            </div> 
+        </div>
+        
+        <div id="endedProject" class="mdui-m-b-4 mdui-p-b-4" style="display: none;">
+            <!-- 已结束项目 -->
+            
+            <div id="endedProjectContent">
+                <!--<div class="card ended">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/han.jpg" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">NFT Art Hub</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag ended">已结束</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">NAH</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">100.00 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--    <div class="info-label">开盘价格</div>-->
+                <!--    <div class="info-value value-highlight">0.001 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">参与人数</div>-->
+                <!--        <div class="info-value">2580</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">解锁时间</div>-->
+                <!--        <div class="info-value">2026-02-15</div>-->
+                <!--    </div>-->
+                <!--    <button onclick="window.location.href = 'endIdoProject.html'" class="btn">查看详情</button>-->
+                <!--</div>-->
+        
+                <!--<div class="card ended">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/frog.jpg" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">GameFi World</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag ended">已结束</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">GFW</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.03 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">参与人数</div>-->
+                <!--        <div class="info-value">1860</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">解锁时间</div>-->
+                <!--        <div class="info-value">2026-01-20</div>-->
+                <!--    </div>-->
+                <!--    <button class="btn disabled-btn">已结束</button>-->
+                <!--</div>-->
+        
+                <!--<div class="card ended">-->
+                <!--    <div class="project-header">-->
+                <!--        <div class="project-logo-name">-->
+                <!--            <div class="project-logo"><img id="logjs" src="img/logo.png" alt="" style="display: block;width: 100%;"></div>-->
+                <!--            <div class="project-name">Cross Chain Bridge</div>-->
+                <!--        </div>-->
+                <!--        <div class="project-tag ended">已结束</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">代币符号</div>-->
+                <!--        <div class="info-value">CCB</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">IDO价格</div>-->
+                <!--        <div class="info-value value-highlight">0.06 USDT</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">参与人数</div>-->
+                <!--        <div class="info-value">3200</div>-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="info-label">解锁时间</div>-->
+                <!--        <div class="info-value">2026-01-10</div>-->
+                <!--    </div>-->
+                <!--    <button class="btn disabled-btn">已结束</button>-->
+                <!--</div>-->
+            </div>
+            <!-- 无项目时显示提示（启用此部分，注释上方项目列表） -->
+            <div id="endedProjectemptytip" class="empty-tip">
+                <i>📑</i>
+                <p>暂无IDO结束的项目</p>
+                <p>前往IDO广场开始参与正在IDO的项目吧</p>
+            </div> 
+        </div> 
+    </div>
+
+
+<!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <a href="javascript:void(0)" class="nav-item active" id="nav-ido">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-text">IDO广场</span>
+        </a>
+        <a href="list.html" class="nav-item" id="nav-my-projects">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">我的项目</span>
+        </a>
+        <a href="swap.html" class="nav-item" id="nav-swap">
+            <span class="nav-icon">🔄</span>
+            <span class="nav-text">Swap</span>
+        </a>
+        <a href="user.html" class="nav-item" id="nav-governance">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </a>
+    </div>
+</body>
+</html>
+
+
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script> 
+<script src="js/create/CreateTokenTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/PublicTokenList.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var $ = mdui.$;
+	var showEndedProjectContent = function(_ele){
+	    console.log("showEndedProjectContent")
+	    $(".projectTab").removeClass("active");
+	    $(_ele).addClass("active");
+	    $("#endedProject").show();
+	    $("#ongoingProject").hide();
+	}
+	var showOngoingProjectContent = function(_ele){
+	    console.log("showOngoingProjectContent")
+	    $(".projectTab").removeClass("active");
+	    $(_ele).addClass("active");
+	    $("#endedProject").hide();
+	    $("#ongoingProject").show();
+	}
+</script>

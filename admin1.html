@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>保本池</title>
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+	
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 22px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4a2380;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        /* 新增：一行两列布局 */
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #333;
+            font-family: monospace;
+            transition: border 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #6c2bd9;
+            box-shadow: 0 0 0 4px rgba(108, 43, 217, 0.1);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #333;
+            min-height: 90px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #6c2bd9;
+            box-shadow: 0 0 0 4px rgba(108, 43, 217, 0.1);
+        }
+
+        /* 说明文字 */
+        .help-text {
+            font-size: 13px;
+            color: #888;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* Tab 标签 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background-color: #f9f7ff;
+            color: #6c2bd9;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 余额显示 */
+        .balance-info {
+            background-color: #f9f7ff;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-bottom: 16px;
+        }
+
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .balance-row:last-child {
+            border-bottom: none;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .balance-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c2bd9;
+        }
+
+        .balance-value.warning {
+            color: #ff6b6b;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(74, 35, 128, 0.25);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .value-highlight {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+        .value-success {
+            color: #34c759;
+            font-weight: bold;
+        }
+        .value-warning {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header1 flex justify-between align-center" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<img id="logjs" src="img/logo.png" alt="" style="display: block;width: 40px;">
+    				<span class=" mdui-typo-subheading" style="font-weight: 800;padding-left: 2px;">BPMWEB3</span>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+    </div>
+    
+    <div class="container">
+        <h2 class="page-title">管理员</h2>
+        
+        <!-- 创建方式 -->
+        <div class="card">
+            <div class="card-title">
+                <i>💎</i> 保本资金池
+            </div>
+            
+            <div class="form-group">
+                <div class="flex justify-between align-center">
+                    <label class="form-label">资金池USDT</label>
+                    <span class="form-label">可用<span id="poolHaveUsdtAmount">0.0</span></span>
+                </div>
+                <input id="TokenPairUsdtInput" type="number" class="form-input" placeholder="100" required>
+            </div>
+            
+            <div class="tabs">
+                <!--<div class="tab active" data-tab="bnb">BNB</div>-->
+                <!--<div class="tab" data-tab="frog">FROG</div>-->
+                <!--<div class="tab" data-tab="point">积分</div>-->
+                <!--<div class="tab" data-tab="team">业绩</div>-->
+            </div>
+
+            <!-- BNB Tab -->
+            <div class="tab-content active" id="bnbContent">
+                <div class="form-group">
+                    
+                    <button class="btn" onclick="transferTokenAmountCheck()">提取</button>
+                </div>
+            </div>
+            <div class="help-text">
+                <strong>操作说明(因为使用系统资金添加资金池)：</strong>
+                <div>仅仅管理员可操作</div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/CreateTokenCode.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/CreateTokenTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/CreateTokenAdminMain.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var $ = mdui.$;
+    
+    var openShareWindow = function(){
+        $("#referrerModal").addClass("active");
+    }
+    var closeShareWindow = function(){
+        $("#referrerModal").removeClass("active");
+    }
+</script>

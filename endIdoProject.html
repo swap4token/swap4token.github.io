@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>IDO详情 - BPM IDO平台</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+	
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        /* 项目头部信息 */
+        .project-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .project-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a2380;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .project-basic {
+            flex: 1;
+        }
+        .project-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 0px;
+        }
+        .project-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        /* 合约地址样式 - 已放大一号字体 */
+        .contract-address {
+            font-size: 16px;
+            font-family: monospace;
+            color: #4a2380;
+            margin-top: 0px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a2380;
+        }
+
+        /* 项目核心详情 */
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+        }
+        .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+            font-family: monospace;
+        }
+        .value-highlight {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+        .value-success {
+            color: #34c759;
+            font-weight: bold;
+        }
+        .value-warning {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        /* 进度条样式 */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #34c759, #30d158);
+            border-radius: 5px;
+            width: 87%;
+        }
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+
+        /* 推广扩容优先购额度 */
+        .promote-quota {
+            margin: 15px 0;
+            padding: 12px;
+            background-color: rgba(255, 193, 7, 0.1);
+            border-radius: 8px;
+        }
+        .quota-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fd7e14;
+            margin-bottom: 8px;
+        }
+        .quota-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        /* 按钮通用样式 */
+        .btn {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.3);
+        }
+        .btn-outline {
+            background-color: white;
+            color: #4a2380;
+            border: 1px solid #4a2380;
+        }
+        .btn-outline:hover {
+            background-color: rgba(74, 35, 128, 0.05);
+            box-shadow: none;
+        }
+        .btn-disabled {
+            background-color: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 保本退出板块 */
+        .exit-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(74, 35, 128, 0.05);
+            border-radius: 8px;
+        }
+        .exit-rule-item {
+            display: flex;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .exit-tips {
+            font-size: 12px;
+            color: #ff6b6b;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            height: 400px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a2380;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        /* 直推业绩表格 */
+        .table-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .referral-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .referral-table th {
+            font-size: 14px;
+            color: #666;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .referral-table th:nth-child(1) {
+            text-align: left;
+        }
+        .referral-table th:nth-child(2) {
+            text-align: center;
+        }
+        .referral-table th:nth-child(3) {
+            text-align: right;
+        }
+        .referral-table td {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .referral-addr-value {
+            font-family: monospace;
+            color: #4a2380;
+        }
+        .referral-amount {
+            font-weight: bold;
+            text-align: center;
+            display: block;
+        }
+        .referral-time {
+            text-align: right;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header1 flex justify-between align-center" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<img id="logjs" src="img/logo.png" alt="" style="display: block;width: 40px;">
+    				<span class=" mdui-typo-subheading" style="font-weight: 800;padding-left: 2px;">BPMWEB3</span>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+    </div>
+    
+    <div class="container">
+        <!-- 项目头部信息 -->
+        <div class="project-header">
+            <div class="project-logo"><img id="tokenImage" src="img/none.png" onerror="this.src='./img/none.png'" style="border-radius: 10px;width: 60px;height: 60px;"></div>
+            <div class="project-basic">
+                <div id="tokenName" class="project-name"></div>
+
+                <!-- 合约地址 - 已去掉复制图标，字体放大一号 -->
+                <div class="contract-address copyBtn" onclick="copyContract()"><span id="tokenContract">………</span> <i class="mdui-icon material-icons" style="font-size: 16px;">&#xe14d;</i></div>
+            </div>
+        </div>
+        <div class="project-desc tokenContext">
+            去中心化NFT艺术交易平台，连接全球创作者与收藏家，提供链上确权、版权追溯等核心功能。
+        </div>
+
+        <!-- 项目核心详情 -->
+        <div class="card">
+            <div class="card-title">
+                <i>📋</i> 项目基本信息
+            </div>
+
+            <!-- 发行量已移到代币符号下方 -->
+            <div class="detail-item">
+                <div class="detail-label">代币符号</div>
+                <div class="detail-value tokenSymbol">NAH</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">发行量</div>
+                <div class="detail-value value-highlight"><span id="tokenTotal">2100000</span> <span class="tokenSymbol">NAH</span></div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">代币上线开盘价</div>
+                <div class="detail-value value-success"><span id="tokenOpenPrice">0.0</span> USDT</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">开盘时间</div>
+                <div class="tokenIdoSwapTime detail-value value-success">2026-02-16 09:00:00</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">开盘剩余时间</div>
+                <div class="detail-value value-warning" id="launchCountdown">00天 00时 00分 00秒</div>
+            </div>
+        </div>
+
+        <!-- IDO历史筹资数据 -->
+        <div class="card">
+            <div class="card-title">
+                <i>📈</i> IDO历史筹资数据
+            </div>
+
+            <!-- 新增字段 -->
+            <div class="detail-item">
+                <div class="detail-label">IDO每份价格</div>
+                <div id="" class="detail-value value-highlight"><span id="tokenOneAmount">0</span> USDT</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">硬顶份数</div>
+                <div id="tokenMaxNumber" class="detail-value">0</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">软顶份数</div>
+                <div id="tokenMinNumber" class="detail-value">0</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">完成份数</div>
+                <div id="tokenOverNumber" class="detail-value value-success">0</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">实际筹资金额</div>
+                <div class="detail-value value-highlight"><span class="tokenOverTotalAmount">0</span> USDT</div>
+            </div>
+            
+            <div class="progress-container mdui-m-t-2">
+                <div id="progressbarRate" class="progress-bar"></div>
+            </div>
+            
+        </div>
+
+        <!-- 个人历史参与信息 -->
+        <div class="card">
+            <div class="card-title">
+                <i>💰</i> 个人参与记录
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">参与时间</div>
+                <div id="userPlayTokenTime" class="detail-value">- - -</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">参与额度</div>
+                <div class="detail-value"><span class="tokenOneAmount">0</span> USDT</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">获得LP数量</div>
+                <div class="detail-value value-highlight"><span class="haveLpAmount">0</span> <span class="tokenSymbol">NAH</span>-USDT LP</div>
+            </div>
+
+            <div class="promote-quota">
+                <div class="quota-title">📈 推广扩容优先购额度（历史数据）</div>
+                <div class="quota-item">
+                    <div>基础优先购额度</div>
+                    <div><span class="canBeforBuyMintOneAmount">0</span> USDT</div>
+                </div>
+                <div class="quota-item">
+                    <div>直推有效会员数</div>
+                    <div class="value-success"><span class="userCanBeforBuyShareNumber">0</span> 人</div>
+                </div>
+                <div class="quota-item">
+                    <div>推广扩容额度（<span class="userCanBeforBuyShareNumber">0</span>人×<span class="canBeforBuyShareOneAmount">0</span>USDT/人）</div>
+                    <div><span class="userCanBeforBuyShareUsdtAmount">0</span> USDT</div>
+                </div>
+                <div class="quota-item">
+                    <div>✅ 最终总优先购额度</div>
+                    <div class="value-highlight"><span class="userCanBeforBuyUsdtAmount">0</span> USDT</div>
+                </div>
+            </div>
+
+            <button class="btn" id="showShareBtn">查看分享业绩</button>
+        </div>
+
+        <!-- 保本退出板块 -->
+        <div class="card">
+            <div class="card-title">
+                <i>🛡️</i> 保本退出机制（LP撤回）
+            </div>
+            <div class="exit-desc">
+                平台承诺：IDO结束后代币上线，若LP赎回价值低于参与本金，用户可申请撤回LP，差额部分由平台保本池全额赔付！
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">当前持有LP数量</div>
+                <div class="detail-value value-highlight"><span class="haveLpAmount">0</span> <span class="tokenSymbol">NAH</span>-USDT LP</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">保本所需最少LP数量</div>
+                <div class="detail-value value-warning"><span class="tokenMinLpAmount">0</span> <span class="tokenSymbol">NAH</span>-USDT LP</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">保本池USDT余额</div>
+                <div class="detail-value value-highlight"><span class="poolHaveUsdtAmount">0</span> USDT</div>
+            </div>
+            <div class="exit-rule-item" style="margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 15px;">
+                <i>1.</i>
+                <div>退出申请时间：2026-02-01 00:00:00 (开盘1小时后随时可操作)</div>
+            </div>
+            <div class="exit-rule-item">
+                <i>2.</i>
+                <div>申请流程：提交撤回LP申请 → 系统赎回LP → 保本池补足差额 → 全额USDT到账</div>
+            </div>
+            <div class="exit-rule-item">
+                <i>3.</i>
+                <div>赔付到账时间：同一区块秒结算</div>
+            </div>
+            <button class="btn" style="margin-top: 15px;display:none;" id="idoTokenOutApproveBtn" onclick="approveLpCheck()">LP 允许</button>
+            <button class="btn" style="margin-top: 15px;" id="idoTokenOutBtn" onclick="outCheck()">保本退出</button>
+            <div class="exit-tips">
+                温馨提示：1. 持有LP数量需≥保本所需最少LP数量方可申请；2. 申请仅在开放时间内有效，逾期自动失效；3. 保本池余额充足，全额赔付有保障。
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享业绩弹窗 -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeModal">×</span>
+            <div class="modal-title">📊 直推分享业绩</div>
+
+            <div class="table-wrapper">
+                <table class="referral-table">
+                    <thead>
+                        <tr>
+                            <th>地址</th>
+                            <th>私募金额</th>
+                            <th>时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shareSunListContent">
+                        <tr>
+                            <td><span class="referral-addr-value">0x000…dead</span></td>
+                            <td><span class="referral-amount">800</span></td>
+                            <td><span class="referral-time">06-12 12:22:32</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="referral-addr-value">0x000…0000</span></td>
+                            <td><span class="referral-amount">100</span></td>
+                            <td><span class="referral-time">06-12 02:22:02</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var launchTime = 0;
+        // 开盘倒计时
+        function updateLaunchCountdown() {
+            const now = new Date().getTime();
+            if(launchTime < now){
+                return ;
+            }
+            const diff = launchTime - now;
+            const countdownEl = document.getElementById('launchCountdown');
+            const formatNum = num => num.toString().padStart(2, '0');
+            if(diff <= 0) {
+                countdownEl.textContent = '已开盘';
+                countdownEl.className = 'detail-value value-success';
+                clearInterval(countdownTimer);
+                return;
+            }
+
+            const days = formatNum(Math.floor(diff / (1000 * 60 * 60 * 24)));
+            const hours = formatNum(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+            const minutes = formatNum(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
+            const seconds = formatNum(Math.floor((diff % (1000 * 60)) / 1000));
+
+            countdownEl.textContent = `${days}天 ${hours}时 ${minutes}分 ${seconds}秒`;
+        }
+
+        const countdownTimer = setInterval(updateLaunchCountdown, 1000);
+        updateLaunchCountdown();
+    </script>
+
+    <!-- 分享业绩弹窗 -->
+    <script>
+        const showShareBtn = document.getElementById('showShareBtn');
+        const shareModal = document.getElementById('shareModal');
+        const closeModal = document.getElementById('closeModal');
+
+        showShareBtn.addEventListener('click', () => {
+            shareModal.classList.add('show');
+        });
+
+        closeModal.addEventListener('click', () => {
+            shareModal.classList.remove('show');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                shareModal.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/datetime-picker-module.js"></script>
+<script src="js/create/CreateTokenTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/IdoTokenDetail.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var $ = mdui.$;
+    var openShareWindow = function(){
+        $("#referrerModal").addClass("active");
+    }
+    var closeShareWindow = function(){
+        $("#referrerModal").removeClass("active");
+    }
+</script>

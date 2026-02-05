@@ -1,0 +1,2519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>猎豹Swap - 委托交易</title>
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link href="css/mdui.min.css" rel="stylesheet">
+<link href="css/me.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary-color: #4a2380;
+        --accent-color: #6c2bd9;
+        --secondary-color: #f5f3ff;
+        --card-bg: #ffffff;
+        --text-dark: #333;
+        --text-gray: #888;
+        --text-light: #aaa;
+        --tab-active: #6c2bd9;
+        --tab-inactive: #b3a1d9;
+        --btn-bg: rgba(108, 43, 217, 0.1);
+        --btn-hover: rgba(108, 43, 217, 0.2);
+    }
+
+    body {
+        background: var(--secondary-color);
+        font-family: "PingFang SC", sans-serif;
+        margin: 0;
+    }
+	.container{
+		padding: 12px;
+	}
+	.logo-icon {
+	    width: 36px;
+	    height: 36px;
+	    background-color: var(--primary-color);
+	    border-radius: 50%;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    font-weight: bold;
+	    position: relative;
+	    overflow: hidden;
+	    color: white;
+	}
+	
+	.logo-icon::after {
+	    content: "";
+	    position: absolute;
+	    width: 10px;
+	    height: 10px;
+	    background-color: var(--secondary-color);
+	    border-radius: 50%;
+	    top: 8px;
+	    left: 12px;
+	}
+	
+	.logo-text {
+	    font-size: 22px;
+	    font-weight: bold;
+	    background: linear-gradient(
+	        to right,
+	        var(--primary-color),
+	        var(--accent-color)
+	    );
+	    -webkit-background-clip: text;
+	    background-clip: text;
+	    color: transparent;
+	}
+	
+    .market-orders, .my-orders, .recent-trades {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        margin-bottom: 20px;
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+    }
+
+    .token-select-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .token-btn {
+        padding: 6px 10px;
+        background: var(--btn-bg);
+        border: 1px solid rgba(108, 43, 217, 0.2);
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .token-btn:hover {
+        background: var(--btn-hover);
+    }
+
+    .add-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        color: #fff;
+        border: none;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(108, 43, 217, 0.3);
+        transition: all 0.2s ease;
+    }
+
+    .add-btn:hover {
+        background: #5a1bb8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(108, 43, 217, 0.4);
+    }
+
+    .token-logo {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0;
+    }
+
+    .usdt { background: #26A17B; }
+    .eth { background: #627EEA; }
+    .bnb { background: #F3BA2F; }
+    .btc { background: #F7931A; }
+
+    .order-tabs {
+        display: flex;
+        margin-bottom: 12px;
+        border-bottom: 1px solid rgba(108,43,217,0.12);
+    }
+
+    .tab {
+        padding: 8px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--tab-inactive);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .tab.active {
+        color: var(--tab-active);
+        border-bottom: 2px solid var(--tab-active);
+    }
+
+    .tab:hover {
+        color: var(--tab-active);
+    }
+
+    .order-list-container {
+        display: none;
+    }
+
+    .order-list-container.active {
+        display: block;
+    }
+
+    .market-order-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        height: 300px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+    /* 隐藏滚动条 */
+    .market-order-list::-webkit-scrollbar {
+      display: none;
+    }
+    .market-order-list {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    /* ✅ 我的订单列表固定高度 260px + 可滚动 */
+    .my-order-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        height: 260px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+    
+    /* 隐藏滚动条 */
+    .my-order-list::-webkit-scrollbar {
+      display: none;
+    }
+    .my-order-list {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    /* ✅ 买卖记录列表也固定高度 260px + 可滚动 */
+    .trades-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        height: 260px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+    /* 隐藏滚动条 */
+    .trades-list::-webkit-scrollbar {
+      display: none;
+    }
+    .trades-list {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .market-order-item, .my-order-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 10px 12px 6px;
+        background: rgba(255,255,255,0.6);
+        border-bottom: 1px solid rgba(108,43,217,0.12);
+    }
+
+    .market-order-item:first-child, .my-order-item:first-child {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    .market-order-item:last-child, .my-order-item:last-child {
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border-bottom: none;
+    }
+
+    .token-pair {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .token-pair .token-logo {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+    }
+
+    .color-1 { background: #FF6B6B; }
+    .color-2 { background: #4ECDC4; }
+    .color-3 { background: #45B7D1; }
+    .color-4 { background: #FFA07A; }
+    .color-5 { background: #98D8C8; }
+    .color-6 { background: #F7DC6F; }
+    .color-7 { background: #BB8FCE; }
+    .color-8 { background: #85C1E9; }
+
+    .info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .pay, .receive {
+        font-size: 13px;
+        color: var(--text-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .receive {
+        color: var(--accent-color);
+    }
+
+    .price, .time {
+        font-size: 11px;
+        color: var(--text-gray);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pay strong, .receive strong, .price strong, .time strong {
+        font-weight: 650;
+    }
+
+    .progress {
+        width: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(0,0,0,0.06);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 3px;
+    }
+
+    .progress-text {
+        font-size: 11px;
+        color: var(--text-gray);
+    }
+
+    .order-note {
+        font-size: 11px;
+        color: var(--text-light);
+        text-align: left;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(108,43,217,0.08);
+    }
+
+    .trade-item {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(108,43,217,0.08);
+        font-size: 11px;
+    }
+
+    .trade-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .trade-time {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .trade-address {
+        font-size: 10px;
+        color: var(--text-gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .address-icon {
+        width: 12px;
+        height: 12px;
+        background: rgba(108, 43, 217, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 7px;
+        color: var(--accent-color);
+    }
+
+    .trade-price {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .trade-price.buy {
+        color: #dc3545;
+    }
+
+    .trade-price.sell {
+        color: #28a745;
+    }
+
+    .trade-amounts {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 2px;
+    }
+
+    .trade-amount {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .amount-label {
+        font-size: 9px;
+        color: var(--text-gray);
+        margin-bottom: 1px;
+    }
+
+    .amount-value {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .empty-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 220px;
+        color: #8e8e93;
+    }
+
+    .empty-icon {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 12px;
+        opacity: 0.3;
+    }
+
+    .empty-title {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .empty-desc {
+        font-size: 13px;
+    }
+
+    .my-orders {
+        position: relative;
+        padding-bottom: 60px;
+    }
+
+    .create-order-fixed-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        padding: 12px;
+        background: linear-gradient(90deg, #4a2380, #6c2bd9);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(108, 43, 217, 0.4);
+        transition: all 0.2s ease;
+    }
+
+    .create-order-fixed-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(108, 43, 217, 0.5);
+    }
+
+    .create-order-fixed-btn i {
+        font-size: 16px;
+    }
+</style>
+
+<style type="text/css">
+	
+	/* ------------------------------ */
+	/* 弹窗通用样式 */
+	/* ------------------------------ */
+	.modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 20px 20px;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(6px);
+	}
+	
+	.modal.show {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+	
+	.modal-content {
+	  background: #fff;
+	  width: 100%;
+	  max-width: 400px;
+	  max-height: 80vh;
+	  overflow-y: auto;
+	  border-radius: 15px;
+	  padding: 20px 22px;
+	  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+	}
+	
+	.modal-header {
+	  font-size: 18px;
+	  font-weight: 700;
+	  color: #333;
+	  margin-bottom: 12px;
+	  display: flex;
+	  align-items: center;
+	}
+	
+	.modal-header i {
+	  margin-right: 8px;
+	}
+	
+	.modal-token-header {
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  margin-bottom: 12px;
+	}
+	
+	.modal-token-icon {
+	  width: 40px;
+	  height: 40px;
+	  border-radius: 50%;
+	  margin: 0 8px;
+	}
+	
+	.modal-token-arrow {
+	  font-size: 18px;
+	  color: var(--text-gray);
+	  margin: 0 6px;
+	}
+	.modal-order-info {
+	  margin-bottom: 16px;  /* 减小间距 */
+	  padding: 14px;  /* 减小内边距 */
+	  background: linear-gradient(135deg, rgba(108, 43, 217, 0.08), rgba(74, 35, 128, 0.08));
+	  border-radius: 10px;
+	  border: 1px solid rgba(108, 43, 217, 0.15);
+	  box-shadow: 0 4px 12px rgba(108, 43, 217, 0.05);
+	}
+	.modal-pay, .modal-receive, .modal-remaining {
+	  font-size: 12px;
+	  margin-bottom: 4px;
+	}
+	
+	.modal-receive {
+	  color: var(--accent-color);
+	}
+	
+	.modal-address1 {
+	  /* font-size: 14px; */
+	  /*color: var(--text-light);*/
+	}
+	.modal-address {
+	  font-size: 12px;  /* 减小字体 */
+	  color: var(--text-gray);
+	  margin-top: 8px;
+	  padding-top: 8px;
+	  border-top: 1px dashed rgba(108, 43, 217, 0.2);
+	}
+	
+	.modal-progress {
+	  margin-bottom: 4px;
+	}
+	
+	.modal-progress-label {
+	  display: flex;
+	  justify-content: space-between;
+	  font-size: 12px;
+	  color: var(--text-gray);
+	  margin-bottom: 6px;
+	}
+	
+	.modal-progress-bar {
+	  width: 100%;
+	  height: 10px;
+	  background: rgba(0, 0, 0, 0.06);
+	  border-radius: 7px;
+	  position: relative;
+	  overflow: visible;
+	  cursor: pointer;
+	  margin-bottom: 6px;
+	}
+	
+	.modal-progress-fill {
+	  position: absolute;
+	  left: 0;
+	  top: 0;
+	  height: 100%;
+	  width: 0%;
+	  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+	  border-radius: 7px;
+	}
+	
+	.modal-progress-thumb {
+	  position: absolute;
+	  top: 50%;
+	  width: 22px;
+	  height: 22px;
+	  border-radius: 50%;
+	  background: #fff;
+	  border: 2px solid var(--accent-color);
+	  transform: translateY(-50%);
+	  margin-left: -11px;
+	  cursor: grab;
+	}
+	
+	.modal-actions-area {
+	  /*margin-top: 16px;*/
+	}
+	
+	.modal-actions-title {
+	  font-size: 14px;
+	  font-weight: 600;
+	  margin-bottom: 8px;
+	}
+	
+	.modal-amount-input-wrap {
+	  display: flex;
+	  align-items: center;
+	  gap: 8px;
+	  margin-top: 6px;
+	  margin-bottom: 10px;
+	  position: relative;
+	}
+	
+	.modal-amount-input {
+	  /* flex: 1;
+	  padding: 8px 12px;
+	  border-radius: 8px;
+	  border: 1px solid #ddd;
+	  font-size: 16px; */
+	  width: 100%;
+	  padding: 8px 60px 8px 70px; /* 左内边距加大，避免重叠 */
+	  border: 1px solid #d1d1d6;
+	  border-radius: 8px;
+	  font-size: 12px;
+	  outline: none;
+	  transition: border 0.2s ease;
+	  box-sizing: border-box;
+	  -webkit-appearance: none;
+	}
+	
+	
+	.modal-amount-input:focus {
+	    border-color: #9c27b0;
+	  }
+	
+	.modal-amount-input::-webkit-inner-spin-button,
+	.modal-amount-input::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	  }
+	
+  .prefix {
+	position: absolute;
+	left: 18px; /* 稍微右移，更美观 */
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 12px;
+	color: #8e8e93;
+	pointer-events: none;
+  }
+	
+	  .max-btn {
+	    position: absolute;
+	    right: 14px;
+	    top: 50%;
+	    transform: translateY(-50%);
+	    font-size: 12px;
+		font-weight: 550;
+	    color: #9c27b0;
+	    cursor: pointer;
+	    user-select: none;
+	  }
+	
+	  .max-btn:hover {
+	    opacity: 0.8;
+	  }
+	  
+	.modal-btn-group {
+	  display: flex;
+	  gap: 10px;
+	}
+	.modal-btn {
+	  flex: 1;
+	  padding: 12px;
+	  border-radius: 8px;
+	  border: none;
+	  font-weight: 500;
+	  cursor: pointer;
+	}
+	
+	.modal-confirm {
+	  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+	  color: white;
+	}
+	
+	.modal-cancel {
+	  background: #f1f1f1;
+	  color: #666;
+	}
+	
+	/* 历史记录 */
+	.modal-history {
+	  margin-top: 16px;
+	  padding-top: 12px;
+	  border-top: 1px solid rgba(0,0,0,0.06);
+	}
+	
+	.modal-history-title {
+	  font-size: 16px;
+	  font-weight: 650;
+	  margin: 10px 0px;
+	}
+	
+	.history-list {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 10px;
+	}
+	
+	.history-item {
+	  display: flex;
+	  align-items: center;
+	  padding: 10px;
+	  background: rgba(0,0,0,0.03);
+	  border-radius: 8px;
+	}
+	
+	.history-avatar {
+	  width: 32px;
+	  height: 32px;
+	  border-radius: 50%;
+	  background: rgba(108, 43, 217, 0.1);
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  margin-right: 12px;
+	  color: var(--accent-color);
+	}
+	
+	.history-info {
+	  flex: 1;
+	}
+	
+	.history-address {
+	  font-size: 13px;
+	  font-weight: 500;
+	  color: var(--text-dark);
+	}
+	
+	.history-amount {
+	  font-size: 13px;
+	  font-weight: 650;
+	  margin-top: 2px;
+	}
+	
+	.history-time {
+	  font-size: 12px;
+	  color: var(--text-gray);
+	}
+	/* 取消确认弹窗 */
+	.confirm-modal {
+	  position: fixed;
+	  top: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 100%;
+	  background: rgba(0,0,0,0.3);
+	  display: none;
+	  justify-content: center;
+	  align-items: center;
+	  z-index: 2000;
+	}
+	
+	.confirm-modal.show {
+	  display: flex;
+	}
+	
+	.confirm-content {
+	  background: white;
+	  padding: 16px;
+	  border-radius: 12px;
+	  width: 80%;
+	  max-width: 320px;
+	  text-align: center;
+	}
+	
+	.confirm-title {
+	  font-size: 16px;
+	  font-weight: 700;
+	  margin-bottom: 12px;
+	}
+	
+	.confirm-buttons {
+	  display: flex;
+	  gap: 10px;
+	  margin-top: 16px;
+	}
+	
+	.confirm-btn {
+	  flex: 1;
+	  padding: 8px;
+	  border-radius: 8px;
+	  border: none;
+	  font-weight: 600;
+	}
+	
+	.confirm-ok {
+	  background: #e63946;
+	  color: white;
+	}
+	
+	.confirm-cancel {
+	  background: #f1f1f1;
+	  color: #666;
+	}
+	
+	/* ********************************* */
+	/* 以下是第二个页面的样式（创建委托单） */
+	/* ********************************* */
+	/* Swap 风格容器 */
+	.swap-container {
+	  background: linear-gradient(135deg, rgba(108, 43, 217, 0.05), rgba(74, 35, 128, 0.05));
+	  border-radius: 12px;
+	  padding: 10px;
+	}
+	
+	/* 代币行 */
+	.token-input {
+	  background: #fff;
+	  border: 1px solid #ddd;
+	  border-radius: 10px;
+	  padding: 6px 12px;
+	  margin-bottom: 8px;
+	}
+	
+	.token-header {
+	  display: flex;
+	  align-items: center;
+	  margin-bottom: 1px;
+	}
+	
+	.token-icon {
+	  width: 26px;
+	  height: 26px;
+	  border-radius: 50%;
+	  background: #eee;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  margin-right: 8px;
+	  font-size: 13px;
+	  font-weight: bold;
+	  color: #fff;
+	}
+	
+	.token-icon.ETH { background: #627EEA; }
+	.token-icon.USDT { background: #26A17B; }
+	.token-icon.BNB { background: #F3BA2F; }
+	.token-icon.BTC { background: #F7931A; }
+	
+	.token-select {
+	  flex: 1;
+	  padding: 0;
+	}
+	
+	select {
+	  padding: 0;
+	  margin: 0;
+	  border: none;
+	  outline: none;
+	  font-size: 15px;
+	  width: 100%;
+	  background: transparent;
+	  text-align: left;
+	}
+	
+	.token-balance {
+	  font-size: 11px;
+	  color: var(--text-gray);
+	  padding-left: 3px;
+	  line-height: 1.1;
+	}
+	
+	input {
+	  width: 100%;
+	  border: none;
+	  font-size: 15px;
+	  padding: 3px 0;
+	  background: transparent;
+	}
+	
+	input:focus {
+	  outline: none;
+	}
+	
+	.amount-input {
+	  width: 100%;
+	  padding: 4px 0;
+	  font-size: 17px;
+	  border-top: 1px solid #eee;
+	  margin-top: 2px;
+	}
+	
+	/* 上下箭头 */
+	.swap-arrow {
+	  text-align: center;
+	  margin: 4px 0;
+	  color: var(--text-gray);
+	  cursor: pointer;
+	}
+	
+	.swap-arrow i {
+	  transform: rotate(90deg);
+	  font-size: 16px;
+	}
+	
+	/* 价格行 */
+	.price-row {
+	  display: flex;
+	  justify-content: space-between;
+	  font-size: 14px;
+	  margin: 8px 0px;
+	  padding: 0px 3px;
+	  color: var(--text-dark);
+	}
+	
+	.price-label {
+	  color: var(--text-gray);
+	}
+	
+	.btn-group {
+	  display: flex;
+	  gap: 10px;
+	  margin-top: 12px;
+	}
+	
+	.order-desc {
+	  font-size: 11.5px;
+	  color: var(--text-gray);
+	  margin-top: 10px;
+	  line-height: 1.3;
+	  text-align: left;
+	  padding: 8px;
+	  background: linear-gradient(135deg, rgba(108, 43, 217, 0.05), rgba(74, 35, 128, 0.05));
+	  border-radius: 8px;
+	}
+	
+	.order-desc strong {
+	  color: var(--text-dark);
+	  font-size: 12px;
+	}
+</style>
+
+</head>
+<body>
+	<!-- 头部导航 -->
+<div class="" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+	<div class="flex justify-between align-center" style="">
+		<div class="flex justify-start align-center" style="">
+			<div class="flex justify-start align-center">
+				<div class="logo-icon">C</div>
+				<div class="logo-text mdui-p-l-1">猎豹Swap</div>
+			</div>
+		</div>
+		<div class="flex justify-end align-center">
+			<span onclick="copyAddress()"
+				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+				🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+			</span>
+			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+		</div>
+	</div>
+	
+</div>
+<div id="" class="container flex justify-center">
+	<div class="" style="width: 100%;max-width: 800px;">
+		<!-- 市场委托 -->
+		<div class="market-orders">
+		    <div class="header-container">
+		        <div class="section-title">
+		            市场委托
+		        </div>
+		
+		        <div class="token-select-group">
+		            <div class="token-btn" id="fromTokenBtn">
+		                <div class="token-logo usdt"></div>
+		                USDT
+		            </div>
+		            <div class="token-btn" id="toTokenBtn">
+		                <div class="token-logo eth"></div>
+		                ETH
+		            </div>
+		        </div>
+		    </div>
+		
+		    <div class="order-tabs">
+		        <div class="tab active" onclick="switchTab('buy')">买单</div>
+		        <div class="tab" onclick="switchTab('sell')">卖单</div>
+		    </div>
+		
+		    <div id="buy" class="order-list-container active">
+		        <div class="market-order-list" onclick="openMarketModal('USDT', 'PEPE', '1,200', '85,000,000,000', '0x99aa…bbcc', 50)">
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-1"></div>
+		                    <div class="token-logo color-2"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>320</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.1</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 65%;"></div>
+		                    </div>
+		                    <div class="progress-text">65%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-3"></div>
+		                    <div class="token-logo color-4"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>640</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.2</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 30%;"></div>
+		                    </div>
+		                    <div class="progress-text">30%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-5"></div>
+		                    <div class="token-logo color-6"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>960</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.3</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 90%;"></div>
+		                    </div>
+		                    <div class="progress-text">90%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-7"></div>
+		                    <div class="token-logo color-8"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>1280</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.4</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 45%;"></div>
+		                    </div>
+		                    <div class="progress-text">45%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-1"></div>
+		                    <div class="token-logo color-3"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>1600</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.5</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 75%;"></div>
+		                    </div>
+		                    <div class="progress-text">75%</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <div id="sell" class="order-list-container">
+		        <div class="market-order-list">
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-2"></div>
+		                    <div class="token-logo color-1"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.1</strong> ETH</div>
+		                    <div class="receive">获得：<strong>320</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 50%;"></div>
+		                    </div>
+		                    <div class="progress-text">50%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-4"></div>
+		                    <div class="token-logo color-3"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.2</strong> ETH</div>
+		                    <div class="receive">获得：<strong>640</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 20%;"></div>
+		                    </div>
+		                    <div class="progress-text">20%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-6"></div>
+		                    <div class="token-logo color-5"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.3</strong> ETH</div>
+		                    <div class="receive">获得：<strong>960</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 80%;"></div>
+		                    </div>
+		                    <div class="progress-text">80%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-8"></div>
+		                    <div class="token-logo color-7"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.4</strong> ETH</div>
+		                    <div class="receive">获得：<strong>1280</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 60%;"></div>
+		                    </div>
+		                    <div class="progress-text">60%</div>
+		                </div>
+		            </div>
+		
+		            <div class="market-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-3"></div>
+		                    <div class="token-logo color-1"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.5</strong> ETH</div>
+		                    <div class="receive">获得：<strong>1600</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 10%;"></div>
+		                    </div>
+		                    <div class="progress-text">10%</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		
+		<!-- 最新交易记录 -->
+		<div class="recent-trades">
+		    <div class="section-title">
+		        最新交易记录
+		    </div>
+		
+		    <div class="trades-list">
+		        <div class="trade-item">
+		            <div class="trade-header">
+		                <div class="trade-time">2025-12-18 15:22</div>
+		                <div class="trade-address">
+		                    <div class="address-icon">
+		                        <i class="fas fa-user"></i>
+		                    </div>
+		                    0x5678...wxyz
+		                </div>
+		            </div>
+		            <div class="trade-price sell">
+		                卖出 0.2 ETH
+		            </div>
+		            <div class="trade-amounts">
+		                <div class="trade-amount">
+		                    <div class="amount-label">获得</div>
+		                    <div class="amount-value">640 USDT</div>
+		                </div>
+		                <div class="trade-amount">
+		                    <div class="amount-label">价格</div>
+		                    <div class="amount-value">3200 USDT/ETH</div>
+		                </div>
+		            </div>
+		        </div>
+		        
+		        <div class="trade-item">
+		            <div class="trade-header">
+		                <div class="trade-time">2025-12-18 16:45</div>
+		                <div class="trade-address">
+		                    <div class="address-icon">
+		                        <i class="fas fa-user"></i>
+		                    </div>
+		                    0x1234...abcd
+		                </div>
+		            </div>
+		            <div class="trade-price buy">
+		                买入 0.3 ETH
+		            </div>
+		            <div class="trade-amounts">
+		                <div class="trade-amount">
+		                    <div class="amount-label">支付</div>
+		                    <div class="amount-value">960 USDT</div>
+		                </div>
+		                <div class="trade-amount">
+		                    <div class="amount-label">价格</div>
+		                    <div class="amount-value">3200 USDT/ETH</div>
+		                </div>
+		            </div>
+		        </div>
+		
+		        <div class="trade-item">
+		            <div class="trade-header">
+		                <div class="trade-time">2025-12-18 15:22</div>
+		                <div class="trade-address">
+		                    <div class="address-icon">
+		                        <i class="fas fa-user"></i>
+		                    </div>
+		                    0x5678...wxyz
+		                </div>
+		            </div>
+		            <div class="trade-price sell">
+		                卖出 0.2 ETH
+		            </div>
+		            <div class="trade-amounts">
+		                <div class="trade-amount">
+		                    <div class="amount-label">获得</div>
+		                    <div class="amount-value">640 USDT</div>
+		                </div>
+		                <div class="trade-amount">
+		                    <div class="amount-label">价格</div>
+		                    <div class="amount-value">3200 USDT/ETH</div>
+		                </div>
+		            </div>
+		        </div>
+		
+		        <div class="trade-item">
+		            <div class="trade-header">
+		                <div class="trade-time">2025-12-18 14:32</div>
+		                <div class="trade-address">
+		                    <div class="address-icon">
+		                        <i class="fas fa-user"></i>
+		                    </div>
+		                    0x9876...5432
+		                </div>
+		            </div>
+		            <div class="trade-price buy">
+		                买入 0.1 ETH
+		            </div>
+		            <div class="trade-amounts">
+		                <div class="trade-amount">
+		                    <div class="amount-label">支付</div>
+		                    <div class="amount-value">320 USDT</div>
+		                </div>
+		                <div class="trade-amount">
+		                    <div class="amount-label">价格</div>
+		                    <div class="amount-value">3200 USDT/ETH</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		
+		<!-- 我的订单 -->
+		<div class="my-orders">
+		    <div class="header-container">
+		        <div class="section-title">
+		            我的订单
+		        </div>
+		
+		        <div class="token-select-group">
+		            <div class="token-btn">
+		                <div class="token-logo usdt"></div>
+		                USDT
+		            </div>
+		            <div class="token-btn">
+		                <div class="token-logo eth"></div>
+		                ETH
+		            </div>
+		        </div>
+		    </div>
+		
+		    <div class="order-tabs">
+		        <div class="tab active" onclick="switchMyTab('myBuy')">买单</div>
+		        <div class="tab" onclick="switchMyTab('mySell')">卖单</div>
+		        <div class="tab" onclick="switchMyTab('myTrade')">买卖记录</div>
+		    </div>
+		
+		    <!-- 我的买单（增加了大量数据） -->
+		    <div id="myBuy" class="order-list-container active">
+		        <div class="my-order-list">
+		            <div class="my-order-item" onclick="openMyOrderModal('USDT', 'PEPE', '1,200', '85,000,000,000', '0x99aa…bbcc', 60, 'completed')">
+		                <div class="token-pair">
+		                    <div class="token-logo color-1"></div>
+		                    <div class="token-logo color-2"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>320</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.1</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-18 14:32</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-3"></div>
+		                    <div class="token-logo color-4"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>640</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.2</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-18 11:05</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-5"></div>
+		                    <div class="token-logo color-6"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>960</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.3</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-17 16:48</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-7"></div>
+		                    <div class="token-logo color-8"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>1280</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.4</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-17 14:22</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-1"></div>
+		                    <div class="token-logo color-3"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>1600</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.5</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-17 10:15</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-2"></div>
+		                    <div class="token-logo color-4"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>1920</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.6</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-16 09:33</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-5"></div>
+		                    <div class="token-logo color-7"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>2240</strong> USDT</div>
+		                    <div class="receive">获得：<strong>0.7</strong> ETH</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-16 08:10</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <!-- 我的卖单（增加了大量数据） -->
+		    <div id="mySell" class="order-list-container">
+		        <div class="my-order-list">
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-2"></div>
+		                    <div class="token-logo color-1"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.1</strong> ETH</div>
+		                    <div class="receive">获得：<strong>320</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-17 09:47</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-4"></div>
+		                    <div class="token-logo color-3"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.2</strong> ETH</div>
+		                    <div class="receive">获得：<strong>640</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-16 15:22</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-6"></div>
+		                    <div class="token-logo color-5"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.3</strong> ETH</div>
+		                    <div class="receive">获得：<strong>960</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-16 11:08</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-8"></div>
+		                    <div class="token-logo color-7"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.4</strong> ETH</div>
+		                    <div class="receive">获得：<strong>1280</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-15 14:30</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		
+		            <div class="my-order-item">
+		                <div class="token-pair">
+		                    <div class="token-logo color-3"></div>
+		                    <div class="token-logo color-1"></div>
+		                </div>
+		                <div class="info">
+		                    <div class="pay">支付：<strong>0.5</strong> ETH</div>
+		                    <div class="receive">获得：<strong>1600</strong> USDT</div>
+		                    <div class="price">价格：1 ETH = 3200 USDT</div>
+		                    <div class="time">时间：2025-12-15 10:45</div>
+		                </div>
+		                <div class="progress">
+		                    <div class="progress-bar">
+		                        <div class="progress-fill" style="width: 100%;"></div>
+		                    </div>
+		                    <div class="progress-text">完成</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <!-- 买卖记录（增加了大量数据） -->
+		    <div id="myTrade" class="order-list-container">
+		        <div class="trades-list">
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-18 14:32</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price buy">
+		                    买入 0.1 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">支付</div>
+		                        <div class="amount-value">320 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-18 11:05</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price buy">
+		                    买入 0.2 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">支付</div>
+		                        <div class="amount-value">640 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-17 16:48</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price buy">
+		                    买入 0.3 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">支付</div>
+		                        <div class="amount-value">960 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-17 14:22</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price buy">
+		                    买入 0.4 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">支付</div>
+		                        <div class="amount-value">1280 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-17 10:15</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price buy">
+		                    买入 0.5 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">支付</div>
+		                        <div class="amount-value">1600 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-17 09:47</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price sell">
+		                    卖出 0.1 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">获得</div>
+		                        <div class="amount-value">320 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-16 15:22</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price sell">
+		                    卖出 0.2 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">获得</div>
+		                        <div class="amount-value">640 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="trade-item">
+		                <div class="trade-header">
+		                    <div class="trade-time">2025-12-16 11:08</div>
+		                    <div class="trade-address">
+		                        <div class="address-icon">
+		                            <i class="fas fa-user"></i>
+		                        </div>
+		                        0x9876...5432
+		                    </div>
+		                </div>
+		                <div class="trade-price sell">
+		                    卖出 0.3 ETH
+		                </div>
+		                <div class="trade-amounts">
+		                    <div class="trade-amount">
+		                        <div class="amount-label">获得</div>
+		                        <div class="amount-value">960 USDT</div>
+		                    </div>
+		                    <div class="trade-amount">
+		                        <div class="amount-label">价格</div>
+		                        <div class="amount-value">3200 USDT/ETH</div>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+			
+		    <div class="flex justify-center align-center mdui-color-white">
+		    	<button class="create-order-fixed-btn" onclick="openCreateOrderModal()">
+		    	    <i class="fas fa-plus"></i>
+		    	    创建新订单1
+		    	</button>
+		    </div>
+		</div>
+		
+	</div>
+</div>
+
+
+<!-- 市场委托弹窗 -->
+<div class="modal" id="marketModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <i class="fas fa-file-invoice"></i>
+      订单详情
+    </div>
+
+    <div class="modal-token-header">
+      <div class="modal-token-icon color-1" id="market-logo-from"></div>
+      <div class="modal-token-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="modal-token-icon color-2" id="market-logo-to"></div>
+    </div>
+
+    <div class="modal-order-info">
+      <div class="modal-pay">
+        支付：<strong id="market-pay-amount"></strong>
+        <span id="market-pay-token"></span>
+      </div>
+      <div class="modal-receive">
+        获得：<strong id="market-receive-amount"></strong>
+        <span id="market-receive-token"></span>
+      </div>
+      <div class="modal-remaining" id="market-remaining"></div>
+      <div class="modal-address modal-remaining" id="market-address"></div>
+    </div>
+
+    <div class="modal-progress">
+      <div class="modal-progress-label">
+        <span id="market-progress-min">已完成：0%</span>
+        <span id="market-progress-current">当前：0%</span>
+        <span id="market-progress-max">最大：100%</span>
+      </div>
+
+      <div class="modal-progress-bar" id="market-progressBar">
+        <div class="modal-progress-fill" id="market-progressFill"></div>
+        <div class="modal-progress-thumb" id="market-progressThumb"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions-area">
+      <!-- <div class="modal-actions-title">参与数量（支付）</div> -->
+
+      <div class="modal-amount-input-wrap">
+        <div class="prefix">支付数量</div>
+        <input
+      		  class="modal-amount-input"
+          type="number"
+          id="market-amount-input"
+          min="1"
+          max="99"
+          placeholder="输入数量"
+      	oninput="onMarketAmountInput()"
+        />
+        <div class="max-btn" id="maxBtn">最大</div>
+      </div>
+
+      <div class="modal-btn-group">
+        <button class="modal-btn modal-confirm" onclick="alert('兑换功能暂未实现')">兑换</button>
+        <button class="modal-btn modal-cancel" onclick="closeMarketModal()">关闭</button>
+      </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="modal-history">
+      <div class="modal-header">
+        <i class="fas fa-clock-rotate-left"></i> 历史记录
+      </div>
+
+      <div class="history-list">
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x9876…5432</div>
+            <div class="history-amount">+12,500 USDT</div>
+          </div>
+          <div class="history-time">10分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x1234…5678</div>
+            <div class="history-amount">+8,200 USDT</div>
+          </div>
+          <div class="history-time">38分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x5678…1234</div>
+            <div class="history-amount">+3,600 USDT</div>
+          </div>
+          <div class="history-time">2小时前</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 我的委托弹窗 -->
+<div class="modal" id="myOrderModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <i class="fas fa-file-invoice"></i>
+      订单详情
+    </div>
+
+    <div class="modal-token-header">
+      <div class="modal-token-icon color-1" id="my-logo-from"></div>
+      <div class="modal-token-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="modal-token-icon color-2" id="my-logo-to"></div>
+    </div>
+
+    <div class="modal-order-info">
+      <div class="modal-pay">
+        支付：<strong id="my-pay-amount"></strong>
+        <span id="my-pay-token"></span>
+      </div>
+      <div class="modal-receive">
+        获得：<strong id="my-receive-amount"></strong>
+        <span id="my-receive-token"></span>
+      </div>
+      <div class="modal-remaining" id="my-remaining"></div>
+      <div class="modal-address" id="my-address"></div>
+    </div>
+
+    <div class="modal-progress">
+      <div class="modal-progress-label">
+        <span id="my-progress-min">已完成：0%</span>
+        <span id="my-progress-current">当前：0%</span>
+        <span id="my-progress-max">最大：100%</span>
+      </div>
+
+      <div class="modal-progress-bar" id="my-progressBar">
+        <div class="modal-progress-fill" id="my-progressFill"></div>
+        <div class="modal-progress-thumb" id="my-progressThumb"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions-area">
+      <!-- <div class="modal-actions-title">取消数量</div> -->
+
+      <div class="modal-amount-input-wrap">
+        <div class="prefix">取消数量</div>
+        <input
+      		  class="modal-amount-input"
+          type="number"
+          id="my-amount-input"
+          min="1"
+          max="99"
+          placeholder="输入数量"
+      		  oninput="onMyAmountInput()"
+        />
+        <div class="max-btn" id="maxBtn">最大</div>
+      </div>
+
+      <div class="modal-btn-group">
+        <button class="modal-btn modal-confirm" onclick="showCancelConfirm()">取消委托</button>
+        <button class="modal-btn modal-cancel" onclick="closeMyOrderModal()">关闭</button>
+      </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="modal-history">
+      <div class="modal-history-title">
+        <i class="fas fa-clock-rotate-left"></i> 历史记录
+      </div>
+
+      <div class="history-list">
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x9876…5432</div>
+            <div class="history-amount">+12,500 USDT</div>
+          </div>
+          <div class="history-time">10分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x1234…5678</div>
+            <div class="history-amount">+8,200 USDT</div>
+          </div>
+          <div class="history-time">38分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x5678…1234</div>
+            <div class="history-amount">+3,600 USDT</div>
+          </div>
+          <div class="history-time">2小时前</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 创建委托单弹窗 -->
+<div class="modal" id="createOrderModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <i class="fas fa-exchange-alt"></i>
+      创建委托单
+    </div>
+
+    <div class="swap-container">
+      <!-- From -->
+      <div class="token-input">
+        <div class="token-header">
+          <div class="token-icon ETH" id="fromIcon">ETH</div>
+          <div class="token-select">
+            <select id="fromToken" onchange="updateFromIcon()">
+              <option value="ETH">ETH</option>
+              <option value="USDT">USDT</option>
+              <option value="BNB">BNB</option>
+              <option value="BTC">BTC</option>
+            </select>
+            <div class="token-balance">余额：<span id="fromBalance">2.45</span></div>
+          </div>
+        </div>
+        <input
+          type="number"
+          id="fromAmount"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          class="amount-input"
+          oninput="calculatePrice()"
+        />
+      </div>
+
+      <!-- 上下箭头 -->
+      <div class="flex justify-center align-center">
+			<div class="swap-arrow" onclick="swapTokens()">
+			  <i class="fas fa-exchange-alt"></i>
+			</div>
+      </div>
+
+      <!-- To -->
+      <div class="token-input">
+        <div class="token-header">
+          <div class="token-icon USDT" id="toIcon">USDT</div>
+          <div class="token-select">
+            <select id="toToken" onchange="updateToIcon()">
+              <option value="USDT">USDT</option>
+              <option value="ETH">ETH</option>
+              <option value="BNB">BNB</option>
+              <option value="BTC">BTC</option>
+            </select>
+            <div class="token-balance">余额：<span id="toBalance">1245.30</span></div>
+          </div>
+        </div>
+        <input
+          type="number"
+          id="toAmount"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          class="amount-input"
+          oninput="calculatePrice()"
+        />
+      </div>
+
+      <!-- 价格 -->
+      <div class="price-row">
+        <div class="price-label">价格</div>
+        <div id="priceText">0.00</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="modal-btn modal-confirm" onclick="createOrder()">创建</button>
+      <button class="modal-btn modal-cancel" onclick="closeCreateOrderModal()">取消</button>
+    </div>
+
+    <!-- 挂单交易说明 -->
+    <div class="order-desc">
+      <strong>挂单交易说明：</strong><br/>
+      • 自定义价格，无需等待市场价格<br/>
+      • 系统自动撮合，成交更高效<br/>
+      • 支持限价挂单，降低滑点风险<br/>
+      • 委托单随时可撤销，灵活可控
+    </div>
+  </div>
+</div>
+
+<!-- 取消确认弹窗 -->
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-content">
+    <div class="confirm-title">确认取消委托？</div>
+    <div>此操作将取消您的委托订单，请确认。</div>
+    <div class="confirm-buttons">
+      <button class="confirm-btn confirm-ok" onclick="confirmCancel()">确认</button>
+      <button class="confirm-btn confirm-cancel" onclick="hideCancelConfirm()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+    // 市场委托 Tab 切换
+    function switchTab(tabName) {
+        const tabs = document.querySelectorAll('.market-orders .tab');
+        const containers = document.querySelectorAll('.market-orders .order-list-container');
+
+        tabs.forEach(tab => tab.classList.remove('active'));
+        containers.forEach(container => container.classList.remove('active'));
+
+        event.target.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+    }
+
+    // 我的订单 Tab 切换
+    function switchMyTab(tabName) {
+        const tabs = document.querySelectorAll('.my-orders .tab');
+        const containers = document.querySelectorAll('.my-orders .order-list-container');
+
+        tabs.forEach(tab => tab.classList.remove('active'));
+        containers.forEach(container => container.classList.remove('active'));
+
+        event.target.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+    }
+	// ------------------------------
+	// 市场委托弹窗
+	// ------------------------------
+	let marketIsDragging = false;
+	let marketMinPercent = 0;
+	
+	function openMarketModal(fromToken, toToken, payAmount, receiveAmount, address, completedPercent) {
+	  marketMinPercent = completedPercent;
+	
+	  document.getElementById("market-pay-amount").textContent = payAmount;
+	  document.getElementById("market-pay-token").textContent = fromToken;
+	  document.getElementById("market-receive-amount").textContent = receiveAmount;
+	  document.getElementById("market-receive-token").textContent = toToken;
+	  document.getElementById("market-address").textContent = "发起人：" + address;
+	
+	  const remainingPercent = 100 - completedPercent;
+	  document.getElementById("market-remaining").textContent = "剩余：" + remainingPercent + "%";
+	
+	  document.getElementById("market-progress-min").textContent = "已完成：" + completedPercent + "%";
+	  document.getElementById("market-progress-max").textContent = "最大：100%";
+	
+	  const colors = ["color-1", "color-2", "color-3", "color-4", "color-5", "color-6", "color-7", "color-8"];
+	  const fromColor = colors[Math.floor(Math.random() * colors.length)];
+	  const toColor = colors[Math.floor(Math.random() * colors.length)];
+	
+	  document.getElementById("market-logo-from").className = "modal-token-icon " + fromColor;
+	  document.getElementById("market-logo-to").className = "modal-token-icon " + toColor;
+	
+	  const fill = document.getElementById("market-progressFill");
+	  const thumb = document.getElementById("market-progressThumb");
+	  fill.style.width = completedPercent + "%";
+	  thumb.style.left = completedPercent + "%";
+	
+	  document.getElementById("market-progress-current").textContent = "当前：" + completedPercent.toFixed(2) + "%";
+	  document.getElementById("market-amount-input").value = completedPercent.toFixed(2);
+	  // document.getElementById("market-max-amount").textContent = "max: 100";
+	
+	  document.getElementById("marketModal").classList.add("show");
+	
+	  // 绑定拖动事件（鼠标 + 触摸）
+	  const bar = document.getElementById("market-progressBar");
+	  const thumbEl = document.getElementById("market-progressThumb");
+	
+	  bar.addEventListener("mousedown", startMarketDrag);
+	  bar.addEventListener("touchstart", startMarketDrag);
+	  thumbEl.addEventListener("mousedown", startMarketDrag);
+	  thumbEl.addEventListener("touchstart", startMarketDrag);
+	}
+	
+	function startMarketDrag(e) {
+	  e.preventDefault();
+	  e.stopPropagation();
+	  marketIsDragging = true;
+	  document.addEventListener("mousemove", marketDrag);
+	  document.addEventListener("touchmove", marketDrag);
+	  document.addEventListener("mouseup", stopMarketDrag);
+	  document.addEventListener("touchend", stopMarketDrag);
+	  document.addEventListener("mouseleave", stopMarketDrag);
+	  document.addEventListener("touchcancel", stopMarketDrag);
+	}
+	
+	function marketDrag(e) {
+	  if (!marketIsDragging) return;
+	  e.preventDefault();
+	
+	  let clientX;
+	  if (e.type === "mousemove") {
+	    clientX = e.clientX;
+	  } else {
+	    clientX = e.touches[0].clientX;
+	  }
+	
+	  const bar = document.getElementById("market-progressBar");
+	  const rect = bar.getBoundingClientRect();
+	  let percent = ((clientX - rect.left) / rect.width) * 100;
+	  percent = Math.max(marketMinPercent, Math.min(100, percent));
+	
+	  const fill = document.getElementById("market-progressFill");
+	  const thumb = document.getElementById("market-progressThumb");
+	  fill.style.width = percent + "%";
+	  thumb.style.left = percent + "%";
+	
+	  document.getElementById("market-progress-current").textContent = "当前：" + percent.toFixed(2) + "%";
+	  document.getElementById("market-amount-input").value = percent.toFixed(2);
+	}
+	
+	function stopMarketDrag() {
+	  marketIsDragging = false;
+	  document.removeEventListener("mousemove", marketDrag);
+	  document.removeEventListener("touchmove", marketDrag);
+	  document.removeEventListener("mouseup", stopMarketDrag);
+	  document.removeEventListener("touchend", stopMarketDrag);
+	  document.removeEventListener("mouseleave", stopMarketDrag);
+	  document.removeEventListener("touchcancel", stopMarketDrag);
+	}
+	
+	function onMarketAmountInput() {
+	  let value = parseFloat(document.getElementById("market-amount-input").value);
+	  if (isNaN(value)) value = marketMinPercent;
+	
+	  value = Math.max(marketMinPercent, Math.min(100, value));
+	
+	  const fill = document.getElementById("market-progressFill");
+	  const thumb = document.getElementById("market-progressThumb");
+	  fill.style.width = value + "%";
+	  thumb.style.left = value + "%";
+	
+	  document.getElementById("market-progress-current").textContent = "当前：" + value.toFixed(2) + "%";
+	  document.getElementById("market-amount-input").value = value.toFixed(2);
+	}
+	
+	function closeMarketModal() {
+	  document.getElementById("marketModal").classList.remove("show");
+	  stopMarketDrag();
+	}
+	
+	// ------------------------------
+	// 我的委托弹窗
+	// ------------------------------
+	let myIsDragging = false;
+	let myMinPercent = 0;
+	
+	function openMyOrderModal(fromToken, toToken, payAmount, receiveAmount, address, completedPercent, status) {
+	  myMinPercent = completedPercent;
+	
+	  document.getElementById("my-pay-amount").textContent = payAmount;
+	  document.getElementById("my-pay-token").textContent = fromToken;
+	  document.getElementById("my-receive-amount").textContent = receiveAmount;
+	  document.getElementById("my-receive-token").textContent = toToken;
+	  document.getElementById("my-address").textContent = "发起人：" + address;
+	
+	  const remainingPercent = 100 - completedPercent;
+	  document.getElementById("my-remaining").textContent = "剩余：" + remainingPercent + "%";
+	
+	  document.getElementById("my-progress-min").textContent = "已完成：" + completedPercent + "%";
+	  document.getElementById("my-progress-max").textContent = "最大：100%";
+	
+	  const colors = ["color-1", "color-2", "color-3", "color-4", "color-5", "color-6", "color-7", "color-8"];
+	  const fromColor = colors[Math.floor(Math.random() * colors.length)];
+	  const toColor = colors[Math.floor(Math.random() * colors.length)];
+	
+	  document.getElementById("my-logo-from").className = "modal-token-icon " + fromColor;
+	  document.getElementById("my-logo-to").className = "modal-token-icon " + toColor;
+	
+	  const fill = document.getElementById("my-progressFill");
+	  const thumb = document.getElementById("my-progressThumb");
+	  fill.style.width = completedPercent + "%";
+	  thumb.style.left = completedPercent + "%";
+	
+	  document.getElementById("my-progress-current").textContent = "当前：" + completedPercent.toFixed(2) + "%";
+	  document.getElementById("my-amount-input").value = completedPercent.toFixed(2);
+	  // document.getElementById("my-max-amount").textContent = "max: 100";
+	
+	  document.getElementById("myOrderModal").classList.add("show");
+	
+	  // 绑定拖动事件（鼠标 + 触摸）
+	  const bar = document.getElementById("my-progressBar");
+	  const thumbEl = document.getElementById("my-progressThumb");
+	
+	  bar.addEventListener("mousedown", startMyDrag);
+	  bar.addEventListener("touchstart", startMyDrag);
+	  thumbEl.addEventListener("mousedown", startMyDrag);
+	  thumbEl.addEventListener("touchstart", startMyDrag);
+	}
+	
+	function startMyDrag(e) {
+	  e.preventDefault();
+	  e.stopPropagation();
+	  myIsDragging = true;
+	  document.addEventListener("mousemove", myDrag);
+	  document.addEventListener("touchmove", myDrag);
+	  document.addEventListener("mouseup", stopMyDrag);
+	  document.addEventListener("touchend", stopMyDrag);
+	  document.addEventListener("mouseleave", stopMyDrag);
+	  document.addEventListener("touchcancel", stopMyDrag);
+	}
+	
+	function myDrag(e) {
+	  if (!myIsDragging) return;
+	  e.preventDefault();
+	
+	  let clientX;
+	  if (e.type === "mousemove") {
+	    clientX = e.clientX;
+	  } else {
+	    clientX = e.touches[0].clientX;
+	  }
+	
+	  const bar = document.getElementById("my-progressBar");
+	  const rect = bar.getBoundingClientRect();
+	  let percent = ((clientX - rect.left) / rect.width) * 100;
+	  percent = Math.max(myMinPercent, Math.min(100, percent));
+	
+	  const fill = document.getElementById("my-progressFill");
+	  const thumb = document.getElementById("my-progressThumb");
+	  fill.style.width = percent + "%";
+	  thumb.style.left = percent + "%";
+	
+	  document.getElementById("my-progress-current").textContent = "当前：" + percent.toFixed(2) + "%";
+	  document.getElementById("my-amount-input").value = percent.toFixed(2);
+	}
+	
+	function stopMyDrag() {
+	  myIsDragging = false;
+	  document.removeEventListener("mousemove", myDrag);
+	  document.removeEventListener("touchmove", myDrag);
+	  document.removeEventListener("mouseup", stopMyDrag);
+	  document.removeEventListener("touchend", stopMyDrag);
+	  document.removeEventListener("mouseleave", stopMyDrag);
+	  document.removeEventListener("touchcancel", stopMyDrag);
+	}
+	
+	function onMyAmountInput() {
+	  let value = parseFloat(document.getElementById("my-amount-input").value);
+	  if (isNaN(value)) value = myMinPercent;
+	
+	  value = Math.max(myMinPercent, Math.min(100, value));
+	
+	  const fill = document.getElementById("my-progressFill");
+	  const thumb = document.getElementById("my-progressThumb");
+	  fill.style.width = value + "%";
+	  thumb.style.left = value + "%";
+	
+	  document.getElementById("my-progress-current").textContent = "当前：" + value.toFixed(2) + "%";
+	  document.getElementById("my-amount-input").value = value.toFixed(2);
+	}
+	
+	function closeMyOrderModal() {
+	  document.getElementById("myOrderModal").classList.remove("show");
+	  stopMyDrag();
+	}
+	
+	// ------------------------------
+	// 取消确认
+	// ------------------------------
+	function showCancelConfirm() {
+	  document.getElementById("confirmModal").classList.add("show");
+	}
+	
+	function hideCancelConfirm() {
+	  document.getElementById("confirmModal").classList.remove("show");
+	}
+	
+	function confirmCancel() {
+	  hideCancelConfirm();
+	  closeMyOrderModal();
+	  alert("委托已取消");
+	}
+	
+	// ============================================
+	// 以下是第二个页面的功能（创建委托单弹窗）
+	// ============================================
+	function openCreateOrderModal() {
+	  document.getElementById("createOrderModal").classList.add("show");
+	}
+	
+	function closeCreateOrderModal() {
+	  document.getElementById("createOrderModal").classList.remove("show");
+	}
+	
+	function updateFromIcon() {
+	  const from = document.getElementById("fromToken").value;
+	  const icon = document.getElementById("fromIcon");
+	  icon.className = "token-icon " + from;
+	  icon.textContent = from;
+	  document.getElementById("fromBalance").textContent = (Math.random() * 10).toFixed(2);
+	}
+	
+	function updateToIcon() {
+	  const to = document.getElementById("toToken").value;
+	  const icon = document.getElementById("toIcon");
+	  icon.className = "token-icon " + to;
+	  icon.textContent = to;
+	  document.getElementById("toBalance").textContent = (Math.random() * 5000).toFixed(2);
+	}
+	
+	function calculatePrice() {
+	  const fromAmount = parseFloat(document.getElementById("fromAmount").value) || 0;
+	  const toAmount = parseFloat(document.getElementById("toAmount").value) || 0;
+	
+	  if (fromAmount === 0 || toAmount === 0) {
+	    document.getElementById("priceText").textContent = "0.00";
+	    return;
+	  }
+	
+	  const price = toAmount / fromAmount;
+	  document.getElementById("priceText").textContent = price.toFixed(4);
+	}
+	
+	// 互换两个币种
+	function swapTokens() {
+	  const fromToken = document.getElementById("fromToken");
+	  const toToken = document.getElementById("toToken");
+	
+	  // 交换值
+	  const temp = fromToken.value;
+	  fromToken.value = toToken.value;
+	  toToken.value = temp;
+	
+	  // 更新图标
+	  updateFromIcon();
+	  updateToIcon();
+	
+	  // 清空输入框
+	  document.getElementById("fromAmount").value = "";
+	  document.getElementById("toAmount").value = "";
+	
+	  // 清空价格
+	  document.getElementById("priceText").textContent = "0.00";
+	}
+	
+	function createOrder() {
+	  const from = document.getElementById("fromToken").value;
+	  const to = document.getElementById("toToken").value;
+	  const fromAmount = document.getElementById("fromAmount").value;
+	  const toAmount = document.getElementById("toAmount").value;
+	  const price = document.getElementById("priceText").textContent;
+	
+	  if (!fromAmount || !toAmount || price === "0.00") {
+	    alert("请输入有效的数量");
+	    return;
+	  }
+	
+	  alert(
+	    `创建委托单成功！\n\n` +
+	    `从：${fromAmount} ${from}\n` +
+	    `到：${toAmount} ${to}\n` +
+	    `价格：1 ${from} = ${price} ${to}`
+	  );
+	
+	  closeCreateOrderModal();
+	}
+	
+	// 点击模态框外部关闭模态框
+    window.addEventListener('click', (event) => {
+        console.log(event.target)
+        if (event.target === document.getElementById('marketModal')) {
+            closeMarketModal();
+        }
+        if (event.target === document.getElementById('myOrderModal')) {
+            closeMyOrderModal();
+        }
+        if (event.target === document.getElementById('createOrderModal')) {
+            closeCreateOrderModal();
+        }
+    });
+</script>
+
+</body>
+</html>

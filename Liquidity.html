@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>猎豹Swap - 资金池管理</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* 替换为社区治理页面的紫渐变主色调 */
+            --primary-color: #4a2380; 
+            --secondary-color: #f5f3ff; 
+            --accent-color: #6c2bd9; 
+            --text-color: #333;
+            --light-gray: #f8f8f8;
+            --card-bg: #ffffff;
+            --panel-bg: #ffffff;
+            --border-radius: 15px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* 统一字体为社区治理页面的无衬线字体 */
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(74, 35, 128, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(74, 35, 128, 0.05) 0%, transparent 20%);
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        /* 头部样式 - 调整为渐变背景 */
+        header {
+            padding: 20px 0 10px 0;
+            /*border-bottom: 1px solid rgba(0, 0, 0, 0.05);*/
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 8px;
+            left: 12px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .nav-links a.active::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .wallet-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.2);
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* 主要内容区 */
+        .hero {
+            padding: 20px 0 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 14px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        /* 资金池面板 - 调整阴影和圆角 */
+        .pool-panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .import-btn {
+            background-color: #f8f8f8;
+            color: var(--accent-color);
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .import-btn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* 资金池列表 */
+        .pool-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .pool-item {
+            background-color: #f5f3ff;
+            border-radius: var(--border-radius);
+            padding: 15px 20px;
+            transition: var(--transition);
+            cursor: pointer;
+            overflow: hidden;
+            max-height: 60px;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .pool-item.expanded {
+            max-height: 320px;
+            padding-bottom: 20px;
+        }
+
+        .pool-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pool-tokens {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .token-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .token-icon img{
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .token-icon.secondary {
+            background: linear-gradient(135deg, #6c2bd9, #8a4fff);
+        }
+        
+        .pool-tokens-secondary {
+            margin-left:-9px;
+        }
+
+        .pool-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .pool-apy {
+            color: var(--accent-color);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .pool-details {
+            margin-top: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease 0.2s;
+            background-color: #FFF;
+            border-radius: var(--border-radius);
+            padding: 15px;
+        }
+
+        .pool-item.expanded .pool-details {
+            opacity: 1;
+        }
+
+        .pool-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .pool-detail-label {
+            color: #666;
+        }
+
+        .pool-detail-value {
+            font-weight: 500;
+        }
+
+        .pool-actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .pool-action-btn {
+            flex: 1;
+            background-color: #f8f8f8;
+            color: var(--text-color);
+            border: none;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .pool-action-btn.primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .pool-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .pool-action-btn.primary:hover {
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.2);
+        }
+
+        /* 增加资金池按钮 - 调整为渐变背景 */
+        .add-pool-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .add-pool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.2);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #f0f0f0;
+        }
+
+        /* 流动性说明区域 */
+        .liquidity-info {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+
+        .info-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .info-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background-color: #f5f3ff;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .info-card h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+        
+        /* 代币信息预览 */
+        .token-preview {
+            margin-top: 0px;
+            padding: 12px;
+            background-color: rgba(74, 35, 128, 0.05);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .token-preview.show {
+            display: block;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4a2380;
+            margin-bottom: 8px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .preview-label {
+            color: #666;
+        }
+
+        .preview-value {
+            font-weight: 500;
+            font-family: monospace;
+        }
+        .smallbtn {
+		    background-color: white;
+		    color: #4a2380;
+		    border: 1px solid #4a2380;
+		    padding: 8px 10px;
+		    border-radius: 10px;
+		    font-size: 12px;
+		    cursor: pointer;
+		    transition: all 0.3s;
+		}
+		.smallbtn:hover {
+		    background-color: rgba(74, 35, 128, 0.55);
+		    box-shadow: 0 4px 10px rgba(74, 35, 128, 0.3);
+		}
+		
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: #f8f8f8;
+            border: 1px solid #f0f0f0;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            color: var(--text-color);
+            outline: none;
+            transition: var(--transition);
+            margin-top: -6px;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* 代币输入样式 - 与交换页面一致 */
+        .token-input {
+            background-color: #f5f8f8;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            margin-bottom: 15px;
+        }
+
+        .token-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .token-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .balance {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .token-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .token-selector-button{
+            padding: 6px;
+            border: 1px #f0f0f0 solid;
+		    border-radius: 10px;
+        }
+
+        .token-amount {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 21px;
+            font-weight: 550;
+            width: 70%;
+            outline: none;
+        }
+
+        .token-amount::placeholder {
+            color: #ccc;
+        }
+
+        .token-btn {
+            background-color: #f0f0f0;
+            border: none;
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .token-btn:hover {
+            background-color: #f8f8f8;
+        }
+
+        .token-icon-small {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+        
+        .token-icon-small img{
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .token-icon-small.secondary {
+            background: linear-gradient(135deg, #6c2bd9, #8a4fff);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .form-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+        }
+
+        .form-btn.primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .form-btn.secondary {
+            background-color: #f8f8f8;
+            color: var(--text-color);
+        }
+
+        .form-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* 代币列表样式 */
+        .token-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .token-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+        }
+
+        .token-item:hover {
+            background-color: #f8f8f8;
+        }
+
+        .token-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .token-item-icon img{
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .token-item-info {
+            flex: 1;
+        }
+
+        .token-item-symbol {
+            font-weight: bold;
+        }
+
+        .token-item-name {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 滑块样式 */
+        .slider-container {
+            margin: 25px 0;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .slider-value {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #f0f0f0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(74, 35, 128, 0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 页脚样式 */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+            color: #666;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .pool-actions-row {
+                flex-direction: column;
+            }
+            
+            .info-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .reciverBnbOrWbnbBtn {
+            background-color: #f5f3ff;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+        .reciverBnbOrWbnbBtn-item:hover {
+            background-color: #b5b3bb;
+        }
+        .reciverBnbOrWbnbBtn-item:active {
+            background-color: #b5b3bb;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <div class="" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+        <div class="header1 flex justify-between align-center" style="">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<div class="logo-icon">C</div>
+                    <div class="logo-text mdui-p-l-1">猎豹Swap</div>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+        </div>
+        <header>
+            <div class="flex justify-start align-center">
+                <nav class="nav-links">
+                    <a href="swap.html">交易</a>
+                    <a href="Liquidity.html" class="active">流动性</a>
+                    <a href="swapTokenManage.html">代币管理</a>
+                    <a href="swapPairManage.html">资金池管理</a>
+                </nav>
+            </div>
+        </header>
+    </div>
+    
+    <div class="container mdui-p-b-4">
+        
+
+        <!-- 主要内容区 -->
+        <main>
+            <section class="hero">
+                <h1>资金池管理</h1>
+                <p>管理您的流动性资金池，提供流动性赚取交易手续费</p>
+            </section>
+
+            <!-- 资金池面板 -->
+            <div class="pool-panel">
+                <div class="panel-header">
+                    <div class="panel-title">流动性列表</div>
+                    <div class="flex justify-start align-center">
+                        <button class="import-btn" id="managePoolBtn" title="导入流动性">
+                            <i class="fas fa-cog"></i>管理
+                        </button>
+                        <button class="import-btn" id="importPoolBtn" title="margin-left:3px">
+                            <i class="fas fa-plus"></i>导入
+                        </button>
+                    </div>
+                    
+                </div>
+
+                <!-- 资金池列表 -->
+                <div class="pool-list" id="userPoolList">
+                    <!-- 资金池列表将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 空状态 -->
+                <div class="empty-state" id="emptyState" style="1display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <h3>暂无资金池</h3>
+                    <p>您还没有加入任何资金池，请点击右上角"导入"按钮导入资金池</p>
+                </div>
+
+                <!-- 增加资金池按钮 -->
+                <button class="add-pool-btn" onclick="openAddLiquidityModal()">
+                    <i class="fas fa-plus-circle"></i> 增加资金池
+                </button>
+            </div>
+
+            <!-- 流动性说明区域 -->
+            <div class="liquidity-info mdui-p-b-4">
+                <h2 class="info-title">流动性提供者指南</h2>
+                <div class="info-content">
+                    <div class="info-card">
+                        <h3>什么是流动性提供？</h3>
+                        <p>流动性提供者将等值的两种代币存入资金池，为交易对提供流动性。作为回报，您将获得该交易对产生的交易费用的一部分。</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>无常损失说明</h3>
+                        <p>当池中代币价格发生变化时，与单纯持有代币相比，流动性提供者可能会面临无常损失。价格波动越大，无常损失可能越高。</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>费用收益</h3>
+                        <p>猎豹Swap对所有交易收取0.3%的费用，这些费用会按比例分配给所有流动性提供者。您的收益与您在池中的份额成正比。</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>如何开始？</h3>
+                        <p>选择您想提供流动性的代币对，存入等值的两种代币。您将收到LP代币作为凭证，可以随时赎回您的份额和累积的费用。</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+     <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item " id="nav-ido">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-text">IDO广场</span>
+        </a>
+        <a href="list.html" class="nav-item" id="nav-my-projects">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">我的项目</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item active" id="nav-swap">
+            <span class="nav-icon">🔄</span>
+            <span class="nav-text">Swap</span>
+        </a>
+        <a href="user.html" class="nav-item" id="nav-governance">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </a>
+    </div>
+    
+    <!-- 导入流动性模态框 -->
+    <div class="modal" id="importPoolModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">导入流动性</div>
+                <button class="close-btn" id="closeImportPoolModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">选择第一个代币</label>
+                    <input type="hidden" id="importToken0ContractInput" value="0x0000000000000000000000000000000000000000"/>
+                    <button onclick="token0TokenSelect('import')" class="token-selector mdui-p-x-1 token-selector-button" id="importSelectToken0Btn" style="width: 100%; justify-content: flex-start;">
+                        <div class="token-icon"><img class="" src="img/token/0x0000000000000000000000000000000000000000.png" onerror="this.src='./img/none.png';"></div> <span>BNB</span> <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">选择第二个代币</label>
+                    <input type="hidden" id="importToken1ContractInput" value="0x55d398326f99059ff775485246999027b3197955"/>
+                    <button onclick="token1TokenSelect('import')" class="token-selector mdui-p-x-1 token-selector-button" id="importSelectToken1Btn" style="width: 100%; justify-content: flex-start;">
+                        <div class="token-icon"><img class="" src="img/token/0x55d398326f99059ff775485246999027b3197955.png" onerror="this.src='./img/none.png';"></div> USDT <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <input type="hidden" id="importPairContractSuccess" value="0x0000000000000000000000000000000000000000"/>
+                    <input type="hidden" id="importToken0ContractSuccess" value="0x0000000000000000000000000000000000000000"/>
+                    <input type="hidden" id="importToken1ContractSuccess" value="0x0000000000000000000000000000000000000000"/>
+                    <input type="hidden" id="importToken0DecimalsSuccess" value="18"/>
+                    <input type="hidden" id="importToken1DecimalsSuccess" value="18"/>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label">流动性总量</div>
+                        <div id="importPoolPairTotalAmount" class="pool-detail-value">0</div>
+                    </div>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label">您的流动性</div>
+                        <div id="importPoolUserPairAmount" class="pool-detail-value">0</div>
+                    </div>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label">您的份额</div>
+                        <div id="importPoolUserPairRate" class="pool-detail-value">0.0%</div>
+                    </div>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label"><span id="importPoolToken0symbol">token0</span> 拥有量</div>
+                        <div id="importPoolToken0Amount" class="pool-detail-value">0</div>
+                    </div>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label"><span id="importPoolToken1symbol">token1</span> 拥有量</div>
+                        <div id="importPoolToken1Amount" class="pool-detail-value">0</div>
+                    </div>
+                </div>
+                <div class="form-actions mdui-p-b-2">
+                    <button class="form-btn secondary" id="cancelImportPool">取消</button>
+                    <button class="form-btn primary" id="confirmImportPool" onclick="importNewPair()">导入</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加流动性模态框 -->
+    <div class="modal" id="addLiquidityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">添加流动性</div>
+                <button class="close-btn" id="closeAddLiquidityModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body mdui-p-x-4">
+                <!-- 第一个代币输入 -->
+                <div class="token-input">
+                    <div class="token-header">
+                        <div class="token-label">第一个代币</div>
+                        <div onclick="Token0InputMax()" class="balance">余额: <span id="addToken0Balance">0</span></div>
+                    </div>
+                    <input type="hidden" id="addToken0ContractInput" value="0x0000000000000000000000000000000000000000"/>
+                    <div class="token-selector">
+                        <input type="number" class="token-amount" oninput="addLiquidityTokenAmountDataInit(this.value, 0)" placeholder="0.0" id="addToken0BalanceInput">
+                        <button onclick="token0TokenSelect('add')" class="token-btn" id="addSelectToken0Btn">
+                            <div class="token-icon-small"><img class="" src="img/token/0x0000000000000000000000000000000000000000.png" onerror="this.src='./img/none.png';"></div>
+                            BNB
+                            <span>▼</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 第二个代币输入 -->
+                <div class="token-input">
+                    <div class="token-header">
+                        <div class="token-label">第二个代币</div>
+                        <div onclick="Token1InputMax()" class="balance">余额: <span id="addToken1Balance">0</span></div>
+                    </div>
+                    <input type="hidden" id="addToken1ContractInput" value="0x55d398326f99059ff775485246999027b3197955"/>
+                    <div class="token-selector">
+                        <input type="number" class="token-amount" oninput="addLiquidityTokenAmountDataInit(0, this.value)" placeholder="0.0" id="addToken1BalanceInput">
+                        <button onclick="token1TokenSelect('add')" class="token-btn" id="addSelectToken1Btn">
+                            <div class="token-icon-small secondary"><img class="" src="img/token/0x55d398326f99059ff775485246999027b3197955.png" onerror="this.src='./img/none.png';"></div>
+                            USDT
+                            <span>▼</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="padding:0px 2px;">
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label">您的份额</div>
+                        <div class="pool-detail-value">0.5%</div>
+                    </div>
+                </div>
+                
+                <div class="mdui-p-b-2" style="margin-top: 20px;">
+                    <div id="addLiquidityToken0ApproveBtn" class="form-actions" style="margin-top: 10px;display:none;">
+                        <button class="form-btn primary" onclick="approveToken0Check()"><span id="addLiquidityToken0ApproveSymbol">token0</span> 批准</button>
+                    </div>
+                    <div id="addLiquidityToken1ApproveBtn" class="form-actions" style="margin-top: 10px;display:none;">
+                        <button class="form-btn primary" onclick="approveToken1Check()"><span id="addLiquidityToken1ApproveSymbol">token1</span> 批准</button>
+                    </div>
+                    <div id="addLiquidityBtn" class="form-actions mdui-p-b-1" style="margin-top: 10px;">
+                        <button class="form-btn primary" onclick="AddLiquidityCheck()">确定添加</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- 撤出流动性模态框 -->
+    <div class="modal" id="removeLiquidityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="">撤出流动性</div>
+                <button class="close-btn" id="closeRemoveLiquidityModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body mdui-p-x-4">
+                <div class="form-group">
+                    <label class="form-label">代币对</label>
+                    <div class="token-input-group flex justify-start align-center">
+                        <div id="removeLiquidityToken0image" class="token-icon"><img class="" src="img/token/0x0000000000000000000000000000000000000000.png" onerror="this.src='./img/none.png';"></div>
+                        <div id="removeLiquidityToken1image" class="token-icon secondary"><img class="" src="img/token/0x55d398326f99059ff775485246999027b3197955.png" onerror="this.src='./img/none.png';"></div>
+                        <div style="margin-left: 10px; font-weight: bold;"><span class="removeLiquidityToken0symbol">BNB</span>/<span class="removeLiquidityToken1symbol">USDT</span></div>
+                    </div>
+                </div>
+                <input type="hidden" id="removeLiquidityPairInput" value="0x16b9a82891338f9bA80E2D6970FddA79D1eb0daE"/>
+                <input type="hidden" id="removeLiquidityToken0Input" value="0x0000000000000000000000000000000000000000"/>
+                <input type="hidden" id="removeLiquidityToken1Input" value="0x0000000000000000000000000000000000000000"/>
+                <div class="form-group">
+                    <input type="hidden" id="removeLiquidityToken0MaxAmount" value="100"/>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label">撤出 <span class="removeLiquidityToken0symbol">BNB</span></div>
+                        <div class="pool-detail-value" id="removeLiquidityToken0Amount">0.0</div>
+                    </div>
+                    <input type="hidden" id="removeLiquidityToken1MaxAmount" value="200"/>
+                    <div class="pool-detail-row">
+                        <div class="pool-detail-label">撤出 <span class="removeLiquidityToken1symbol">USDT</span></div>
+                        <div class="pool-detail-value" id="removeLiquidityToken1Amount">0.0</div>
+                    </div>
+                    <div id="removeLiquidityReciverWBnbBtn" class="pool-detail-row" style="margin-bottom:-5px;display:none;">
+                        <div class="pool-detail-label"></div>
+                        <div class="pool-detail-value slider-value reciverBnbOrWbnbBtn" id="">接收WBNB</div>
+                    </div>
+                    <div id="removeLiquidityReciverBnbBtn" class="pool-detail-row" style="margin-bottom:-5px;display:none;">
+                        <div class="pool-detail-label"></div>
+                        <div class="pool-detail-value slider-value reciverBnbOrWbnbBtn" id="">接收BNB</div>
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <div class="slider-label">撤出比例</div>
+                        <div class="slider-value" id="removePercentage">50%</div>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="slider" id="removeSlider">
+                    <div class="slider-labels">
+                        <span>0%</span>
+                        <span>25%</span>
+                        <span>50%</span>
+                        <span>75%</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+                
+                <div class="mdui-p-b-2" style="margin-top: 20px;">
+                    <div id="RemoveLiquidityPairApproveBtn" class="form-actions" style="margin-top: 10px;">
+                        <button class="form-btn primary" onclick="approvePairCheck()">LP 批准</button>
+                    </div>
+                    <div class="form-actions mdui-p-b-1" style="margin-top: 10px;">
+                        <button class="form-btn primary" id="confirmRemoveLiquidity" onclick="RemoveLiquidityCheck()">确认撤出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 代币选择器模态框 -->
+    <div class="modal" id="tokenSelectorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">选择代币</div>
+                <button class="close-btn" id="closeTokenSelectorModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-input" placeholder="搜索名称或粘贴合约地址" id="tokenSearch">
+                <div class="token-preview" id="tokenPreview">
+                    <div class="preview-title">代币信息预览</div>
+                    <input type="hidden" id="findTokenContract" value="0x0000000000000000000000000000000000000000"/>
+                    <div class="preview-item">
+                        <div class="preview-label">全称</div>
+                        <div class="preview-value" id="tokenSearch_tokenName">---</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">简称</div>
+                        <div class="preview-value" id="tokenSearch_tokenSymbol">---</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">精度</div>
+                        <div class="preview-value" id="tokenSearch_tokenDecimals">---</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">余额</div>
+                        <div class="preview-value" id="tokenSearch_tokenBalance">---</div>
+                    </div>
+    				<div class="" style="text-align: right;margin-top: 10px;">
+    					<button class="smallbtn" style="margin-left: 10px;" onclick="selectAndaddToken2System()">选择并保存</button>
+    				</div>
+                </div>
+                <div class="token-list" id="swapTokenList">
+                    <!-- 代币列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+
+        // DOM元素
+        const managePoolBtn = document.getElementById('managePoolBtn');
+        const importPoolBtn = document.getElementById('importPoolBtn');
+        const importPoolModal = document.getElementById('importPoolModal');
+        
+        const addLiquidityModal = document.getElementById('addLiquidityModal');
+        const removeLiquidityModal = document.getElementById('removeLiquidityModal');
+        const tokenSelectorModal = document.getElementById('tokenSelectorModal');
+        const closeImportPoolModal = document.getElementById('closeImportPoolModal');
+        const closeAddLiquidityModal = document.getElementById('closeAddLiquidityModal');
+        const closeRemoveLiquidityModal = document.getElementById('closeRemoveLiquidityModal');
+        const closeTokenSelectorModal = document.getElementById('closeTokenSelectorModal');
+        const cancelImportPool = document.getElementById('cancelImportPool');
+        
+        const cancelRemoveLiquidity = document.getElementById('cancelRemoveLiquidity');
+        const confirmAddLiquidity = document.getElementById('confirmAddLiquidity');
+        
+        const tokenSearch = document.getElementById('tokenSearch');
+        const removeSlider = document.getElementById('removeSlider');
+        const removePercentage = document.getElementById('removePercentage');
+        
+        const tokenPreview = document.getElementById('tokenPreview');
+
+        // 当前选中的代币类型和模态框类型
+        let currentTokenType = 'A';
+        let currentModalType = 'import'; // 'import' 或 'add'
+        let currentPool = null;
+
+        // 初始化页面
+        function initPage() {
+            // renderPoolList();
+            
+            // 绑定事件
+            importPoolBtn.addEventListener('click', () => {
+                currentModalType = 'import';
+                importPoolModal.style.display = 'flex';
+            });
+            
+            closeImportPoolModal.addEventListener('click', () => {
+                importPoolModal.style.display = 'none';
+            });
+            
+            closeAddLiquidityModal.addEventListener('click', () => {
+                addLiquidityModal.style.display = 'none';
+            });
+            
+            closeRemoveLiquidityModal.addEventListener('click', () => {
+                removeLiquidityModal.style.display = 'none';
+            });
+            
+            closeTokenSelectorModal.addEventListener('click', () => {
+                tokenSelectorModal.style.display = 'none';
+            });
+            
+            cancelImportPool.addEventListener('click', () => {
+                importPoolModal.style.display = 'none';
+            });
+            managePoolBtn.addEventListener('click', () => {
+                window.location.href = "swapPairManage.html";
+            });
+            
+            // 滑块事件
+            removeSlider.addEventListener('input', updateRemoveValues);
+            
+            // 点击模态框外部关闭模态框
+            window.addEventListener('click', (event) => {
+                if (event.target === importPoolModal) {
+                    importPoolModal.style.display = 'none';
+                }
+                if (event.target === addLiquidityModal) {
+                    addLiquidityModal.style.display = 'none';
+                }
+                if (event.target === removeLiquidityModal) {
+                    removeLiquidityModal.style.display = 'none';
+                }
+                if (event.target === tokenSelectorModal) {
+                    tokenSelectorModal.style.display = 'none';
+                }
+            });
+            
+            // 搜索代币
+            tokenSearch.addEventListener('input', () => {
+                tokenPreview.classList.remove('show');
+                const searchTerm = tokenSearch.value.toLowerCase();
+                if (searchTerm) {
+                    if(searchTerm.length >= 40){
+                        console.log("合约地址搜索;"+searchTerm.length)
+                        findTokenDetail();
+                    }else{
+                        renderTokensBySymbol(searchTerm);
+                    }
+                } else {
+                    renderAllTokens();
+                }
+            });
+        }
+
+
+        
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/BigInt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/SwapTokenList.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/SwapLiquidityList.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="js/DappSwapTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappLiquidityMain.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    
+    // var currentTokenType = 'token0';
+    var token0TokenSelect = function(_select){
+        $("#tokenSearch").val();
+        currentTokenType = 'token0';
+        currentModalType = _select;
+        tokenSelectorModal.style.display = 'flex';
+        renderAllTokens();
+    }
+    var token1TokenSelect = function(_select){
+        $("#tokenSearch").val();
+        currentTokenType = 'token1';
+        currentModalType = _select;
+        tokenSelectorModal.style.display = 'flex';
+        renderAllTokens();
+    }
+    
+    // 选择代币
+    function selectToken(contractAddress) {
+        const token = tokenListObject[contractAddress];
+        console.log(token)
+        if (currentModalType === 'import') {
+            if (currentTokenType === 'token0') {
+                $("#importSelectToken0Btn").html(`
+                    <div class="token-icon"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                    ${token.symbol} <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                `)
+                $("#importToken0ContractInput").val(contractAddress);
+            }else{
+                $("#importSelectToken1Btn").html(`
+                    <div class="token-icon"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                    ${token.symbol} <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                `)
+                $("#importToken1ContractInput").val(contractAddress);
+            }
+            findUserLpDetail();
+        }else{
+            if (currentTokenType === 'token0') {
+                $("#addSelectToken0Btn").html(`
+                    <div class="token-icon-small"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                    ${token.symbol}
+                    <span>▼</span>
+                `)
+                
+                $("#addToken0ContractInput").val(contractAddress);
+                $("#addLiquidityToken0ApproveSymbol").text(token.symbol);
+            }else{
+                $("#addSelectToken1Btn").html(`
+                    <div class="token-icon-small"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                    ${token.symbol}
+                    <span>▼</span>
+                `)
+                $("#addToken1ContractInput").val(contractAddress);
+                $("#addLiquidityToken1ApproveSymbol").text(token.symbol);
+            }
+        }
+        tokenSelectorModal.style.display = 'none';
+        swapTokenDataInit();
+    }
+    
+    function openAddLiquidityModal(){
+        openAddLiquidity(null);
+    }
+    
+    function openAddLiquidity(_pairToken){
+        console.log("openAddLiquidity")
+        console.log(_pairToken)
+        if(_pairToken){
+            var addLdxPairToken0Contract = _pairToken.token0;
+            var addLdxPairToken1Contract = _pairToken.token1;
+            var addLdxPairToken0symbol = _pairToken.token0symbol;
+            var addLdxPairToken1symbol = _pairToken.token1symbol;
+            if(addLdxPairToken0Contract == wbnbContract && addLdxPairToken0symbol == "BNB"){addLdxPairToken0Contract = bnbContract;}
+            if(addLdxPairToken1Contract == wbnbContract && addLdxPairToken1symbol == "BNB"){addLdxPairToken1Contract = bnbContract;}
+            $("#addToken0ContractInput").val(addLdxPairToken0Contract);
+            $("#addToken1ContractInput").val(addLdxPairToken1Contract);
+            $("#addSelectToken0Btn").html(`
+                <div class="token-icon-small"><img class="" src="img/token/${_pairToken.token0}.png" onerror="this.src='./img/none.png';"></div>
+                ${_pairToken.token0symbol}
+                <span>▼</span>
+            `)
+            $("#addSelectToken1Btn").html(`
+                <div class="token-icon-small"><img class="" src="img/token/${_pairToken.token1}.png" onerror="this.src='./img/none.png';"></div>
+                ${_pairToken.token1symbol}
+                <span>▼</span>
+            `)
+            $("#addLiquidityToken0ApproveSymbol").text(_pairToken.token0symbol);
+            $("#addLiquidityToken1ApproveSymbol").text(_pairToken.token1symbol);
+        }
+        currentModalType = 'add';
+        addLiquidityModal.style.display = 'flex';
+        
+        swapTokenDataInit();
+        $("#addToken0BalanceInput").val('');
+        $("#addToken1BalanceInput").val('');
+    }
+    
+    var closeAddLiquidity = function(){
+        $("#addToken0BalanceInput").val('');
+        $("#addToken1BalanceInput").val('');
+        addLiquidityModal.style.display = 'none';
+    }
+    
+    function openDelLiquidity(_pairToken){
+        console.log("openDelLiquidity")
+        console.log(_pairToken)
+        findDeleteLdxPair(_pairToken.token0, _pairToken.token1);
+        $("#removeLiquidityPairInput").val(_pairToken.pair);
+        $(".removeLiquidityToken0symbol").text(_pairToken.token0symbol);
+        $(".removeLiquidityToken1symbol").text(_pairToken.token1symbol);
+        $("#removeLiquidityToken0image").html(`<img class="" src="img/token/${_pairToken.token0}.png" onerror="this.src='./img/none.png';">`);
+        $("#removeLiquidityToken1image").html(`<img class="" src="img/token/${_pairToken.token1}.png" onerror="this.src='./img/none.png';">`);
+        removeSlider.value = 50;
+        removeLiquidityModal.style.display = 'flex';
+        updateRemoveValues();
+    }
+    
+    // 更新撤出数值
+    function updateRemoveValues() {
+        const percentage = removeSlider.value;
+        removePercentage.textContent = `${percentage}%`;
+        var removeLiquidityToken0MaxAmount = $("#removeLiquidityToken0MaxAmount").val();
+        var removeLiquidityToken1MaxAmount = $("#removeLiquidityToken1MaxAmount").val();
+        console.log("removeLiquidityToken0MaxAmount;"+removeLiquidityToken0MaxAmount)
+        console.log("removeLiquidityToken1MaxAmount;"+removeLiquidityToken1MaxAmount)
+        if (removeLiquidityToken0MaxAmount && removeLiquidityToken1MaxAmount) {
+            // 计算撤出的代币数量
+            const token0Amount = (removeLiquidityToken0MaxAmount * percentage) * 0.01;
+            const token1Amount = (removeLiquidityToken1MaxAmount * percentage) * 0.01;
+            console.log("token0Amount;"+token0Amount)
+            console.log("token1Amount;"+token1Amount)
+            if(token0Amount >= 1){
+                $("#removeLiquidityToken0Amount").text((token0Amount).toFixed(2));
+            }else{
+                $("#removeLiquidityToken0Amount").text((token0Amount).toFixed(8));
+            }
+            if(token1Amount >= 1){
+                $("#removeLiquidityToken1Amount").text((token1Amount * 0.01).toFixed(2));
+            }else{
+                $("#removeLiquidityToken1Amount").text((token1Amount * 0.01).toFixed(8));
+            }
+        }
+    }
+    
+    renderAllPairTokens();
+    
+    
+    //查找新代币
+    // var findTokenDetail = function() {
+    //     console.log("findTokenDetail")
+    //     const address = document.getElementById('tokenSearch').value.trim();
+    //     console.log(address)
+    //     if (!address) return;
+
+    //     // 模拟区块链查询
+    //     const mockToken = {
+    //         name: 'NFT Art Hub',
+    //         symbol: 'NAH',
+    //         decimals: 18,
+    //         balance: '1250.123456789',
+    //         address: address
+    //     };
+        
+    //     $("#findTokenContract").val(address);
+    //     document.getElementById('tokenSearch_tokenName').textContent = mockToken.name;
+    //     document.getElementById('tokenSearch_tokenSymbol').textContent = mockToken.symbol;
+    //     document.getElementById('tokenSearch_tokenDecimals').textContent = mockToken.decimals;
+    //     document.getElementById('tokenSearch_tokenBalance').textContent = 0 + ' ' + mockToken.symbol;
+
+    //     document.getElementById('tokenPreview').classList.add('show');
+    //     document.getElementById('swapTokenList').innerHTML = '';
+    // }
+    
+    var selectAndaddToken2System = function() {
+        const findTokenContract = document.getElementById('findTokenContract').value.trim();
+        if (!findTokenContract) return;
+        // 检查是否已存在
+        if (tokenListObject[findTokenContract]) {
+            
+        }else{
+            var fullName = document.getElementById('tokenSearch_tokenName').textContent;
+            var shortName = document.getElementById('tokenSearch_tokenSymbol').textContent;
+            var decimals = document.getElementById('tokenSearch_tokenDecimals').textContent;
+            
+            userAddToken(findTokenContract,fullName,shortName,decimals);
+            // renderAllTokens2manage();
+            tishi('保存成功');
+        }
+        document.getElementById('tokenPreview').classList.remove('show');
+        $("#tokenSearch").val('');
+        selectToken(findTokenContract);
+    }
+    
+    var importNewPair = function(){
+        
+        const _pair = document.getElementById('importPairContractSuccess').value.toLowerCase().trim();
+        const _token0 = document.getElementById('importToken0ContractSuccess').value.toLowerCase().trim();
+        const _token1 = document.getElementById('importToken1ContractSuccess').value.toLowerCase().trim();
+        const _token0decimals = document.getElementById('importToken0DecimalsSuccess').value.trim();
+        const _token1decimals = document.getElementById('importToken1DecimalsSuccess').value.trim();
+        
+        var _token0symbol = $("#importPoolToken0symbol").text();
+        var _token1symbol = $("#importPoolToken1symbol").text();
+    
+        if (!_token0 || !_token1 || !_pair) return;
+        if (_pair == bnbContract) return;
+
+        userAddPairToken(_pair, _token0, _token1, _token0symbol, _token1symbol, _token0decimals, _token1decimals);
+        renderAllPairTokens();
+        getPairsInfoBatch();
+        document.getElementById('importPairContractSuccess').value = '';
+        document.getElementById('importToken0ContractSuccess').value = '';
+        document.getElementById('importToken1ContractSuccess').value = '';
+        document.getElementById('importToken0DecimalsSuccess').value = '18';
+        document.getElementById('importToken1DecimalsSuccess').value = '18';
+        tishi('导入成功');
+        importPoolModal.style.display = 'none';
+    }
+    
+    
+    var Token0InputMax = function(){
+        var Token0Balance = $("#addToken0Balance").text();
+        $("#addToken0BalanceInput").val(Token0Balance);
+        addLiquidityTokenAmountDataInit(Token0Balance, 0);
+    }
+    var Token1InputMax = function(){
+        var Token1Balance = $("#addToken1Balance").text();
+        $("#addToken1BalanceInput").val(Token1Balance);
+        addLiquidityTokenAmountDataInit(0, Token1Balance);
+    }
+</script>

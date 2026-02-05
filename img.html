@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>上传图片到GoDaddy</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        .container { max-width: 500px; border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
+        input, button, select { margin: 10px 0; padding: 10px; width: 100%; box-sizing: border-box; }
+        #message { margin-top: 15px; padding: 10px; border-radius: 3px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .hint { font-size: 12px; color: #666; margin-top: 3px; }
+        .checkbox-group { display: flex; align-items: center; margin: 15px 0; }
+        .checkbox-group input { width: auto; margin-right: 10px; }
+        .filename-preview { background: #f8f9fa; padding: 8px; border-radius: 4px; margin-top: 5px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>上传图片到服务器</h2>
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="imageFile">选择图片文件</label>
+                <input type="file" id="imageFile" name="image" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="customName">自定义文件名</label>
+                <input type="text" id="customName" name="customName" placeholder="例如：my-photo、产品图">
+                <div class="hint">输入你想要的文件名（不含扩展名）。如果留空，将使用原文件名。</div>
+                <div class="filename-preview" id="tokenLogoDisplay">预览：未选择文件</div>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="overwrite" name="overwrite">
+                <label for="overwrite" style="font-weight: normal; margin: 0;">
+                    如果文件已存在，直接覆盖
+                </label>
+            </div>
+            <div class="hint" style="margin-top: -5px;">⚠️ 选中此项，同名文件将被替换，无法恢复。</div>
+            
+            <button type="submit">上传图片</button>
+        </form>
+        <!-- 这里会显示上传结果 -->
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // const fileInput = document.getElementById('imageFile');
+        // const customNameInput = document.getElementById('customName');
+        // const filenamePreview = document.getElementById('filenamePreview');
+        // const messageDiv = document.getElementById('message');
+        
+        // 最大尺寸限制
+const MAX_WIDTH = 150;
+const MAX_HEIGHT = 150;
+const UPLOAD_URL = 'YOUR_UPLOAD_ENDPOINT'; // 替换为你的上传接口地址
+
+// 获取DOM元素
+const fileInput = document.getElementById('imageFile');
+const previewDiv = document.getElementById('tokenLogoDisplay');
+// const statusDiv = document.getElementById('message');
+
+// 监听文件选择事件
+fileInput.addEventListener('change', handleFileSelect);
+
+// 处理文件选择
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+        return;
+    }
+    
+    // 验证文件大小（可选）
+    const maxSize = 5 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+        return;
+    }
+    
+    // 处理图片并上传
+    processAndUploadImage(file);
+}
+
+// 处理图片并上传
+async function processAndUploadImage(file) {
+    try {
+        // 1. 加载图片
+        const image = await loadImage(file);
+        
+        // 2. 调整图片尺寸
+        const resizedData = await resizeImage(image);
+        
+        // 3. 显示预览
+        showPreview(resizedData);
+        
+        // 4. 上传图片
+        await uploadImage(resizedData.blob, "0x111111111111111111111111111111.png");
+        
+    } catch (error) {
+        console.error('处理图片失败:', error);
+    }
+}
+
+// 加载图片
+function loadImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        const img = new Image();
+        
+        reader.onload = function(e) {
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('图片加载失败'));
+            img.src = e.target.result;
+        };
+        
+        reader.onerror = () => reject(new Error('读取文件失败'));
+        reader.readAsDataURL(file);
+    });
+}
+
+// 调整图片尺寸
+function resizeImage(image) {
+    return new Promise((resolve, reject) => {
+        try {
+            // 验证图片是否有效
+            if (!image.complete || image.naturalWidth === 0) {
+                reject(new Error('图片无效或未加载完成'));
+                return;
+            }
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 获取原始尺寸
+            const originalWidth = image.naturalWidth || image.width;
+            const originalHeight = image.naturalHeight || image.height;
+            
+            // 计算缩放比例
+            let width = originalWidth;
+            let height = originalHeight;
+            
+            if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+                const ratio = Math.min(
+                    MAX_WIDTH / width,
+                    MAX_HEIGHT / height
+                );
+                width = Math.floor(width * ratio);
+                height = Math.floor(height * ratio);
+            }
+            
+            // 设置canvas尺寸
+            canvas.width = width;
+            canvas.height = height;
+            
+            // 绘制调整后的图片
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(image, 0, 0, width, height);
+            
+            // 转换为Blob（使用JPEG格式，质量80%，文件更小）
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error('转换为Blob失败'));
+                    return;
+                }
+                
+                resolve({
+                    blob: blob,
+                    width: width,
+                    height: height,
+                    originalWidth: originalWidth,
+                    originalHeight: originalHeight,
+                    url: URL.createObjectURL(blob)
+                });
+                
+            }, 'image/jpeg', 0.8); // 可以改为 'image/png' 如果需要透明背景
+            
+        } catch (error) {
+            reject(new Error(`调整图片尺寸失败: ${error.message}`));
+        }
+    });
+}
+
+// 显示预览
+function showPreview(resizedData) {
+    previewDiv.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = resizedData.url;
+    previewDiv.appendChild(img);
+    // 记得稍后清理URL对象
+    setTimeout(() => {
+        URL.revokeObjectURL(resizedData.url);
+    }, 1000);
+}
+
+// 上传图片
+async function uploadImage(blob, originalFilename) {
+    // 创建FormData
+    const formData = new FormData();
+    
+    // 生成新文件名（保留原扩展名）
+    const extension = originalFilename.split('.').pop();
+    const newFilename = `resized_${Date.now()}.${extension}`;
+    
+    formData.append('image', blob, newFilename);
+    formData.append('filename', originalFilename);
+    formData.append('overwrite', '1'); // 传递覆盖选项
+    // 发送到服务器上的 upload.php 文件
+    fetch('upload.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.overwritten) {
+            } else {
+            }
+        } else {
+        }
+    })
+    .catch(error => {
+        console.error('发生错误:', error);
+    });
+}
+
+// 格式化文件大小
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+        
+        
+        
+        // 表单提交
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // 阻止表单默认提交
+
+            messageDiv.innerHTML = '正在上传...';
+            messageDiv.className = '';
+
+            // 确保用户选择了文件
+            if (fileInput.files.length === 0) {
+                alert('请先选择一张图片！');
+                return;
+            }
+
+            // 获取原始文件名和扩展名
+            const originalFile = fileInput.files[0];
+            const originalFileName = originalFile.name;
+            const lastDotIndex = originalFileName.lastIndexOf('.');
+            
+            // 确定最终文件名
+            let baseName = '';
+            if (customNameInput.value.trim() !== '') {
+                baseName = customNameInput.value.trim()
+                    .replace(/[^\w\u4e00-\u9fa5-]/g, '_')
+                    .substring(0, 50);
+            } else {
+                baseName = lastDotIndex !== -1 ? originalFileName.substring(0, lastDotIndex) : originalFileName;
+                baseName = baseName.replace(/[^\w\u4e00-\u9fa5-]/g, '_').substring(0, 50);
+            }
+            
+            const finalFileName = baseName + originalExtension;
+            console.log('finalFileName:'+finalFileName)
+            // 准备要发送的数据
+            const formData = new FormData();
+            formData.append('image', originalFile);
+            formData.append('filename', finalFileName);
+            formData.append('overwrite', '1'); // 传递覆盖选项
+
+            // 发送到服务器上的 upload.php 文件
+            fetch('upload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.overwritten) {
+                        messageDiv.innerHTML = `⚠️ 文件已覆盖！<br>文件名：${data.filename}<br>原文件已被替换。`;
+                        messageDiv.className = 'warning';
+                    } else {
+                        messageDiv.innerHTML = `✅ 上传成功！<br>文件名：${data.filename}<br>保存路径：${data.filepath}`;
+                        messageDiv.className = 'success';
+                    }
+                } else {
+                    messageDiv.innerHTML = `❌ 上传失败：${data.message}`;
+                    messageDiv.className = 'error';
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+                messageDiv.innerHTML = '❌ 网络请求失败，请检查控制台或稍后再试。';
+                messageDiv.className = 'error';
+            });
+        });
+        
+    </script>
+</body>
+</html>

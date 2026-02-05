@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <title>代币管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 20px 0 10px 0;
+            /*border-bottom: 1px solid rgba(74, 35, 128, 0.1);*/
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background-color: #4a2380;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 8px;
+            left: 12px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(to right, #4a2380, #6c2bd9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #6c2bd9;
+        }
+
+        .nav-links a.active::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #6c2bd9;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a2380;
+        }
+
+        /* 导入代币 */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-text {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: monospace;
+            transition: border 0.3s;
+        }
+
+        .input-text:focus {
+            outline: none;
+            border-color: #6c2bd9;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.3);
+        }
+
+        .btn-outline {
+            background-color: white;
+            color: #4a2380;
+            border: 1px solid #4a2380;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(74, 35, 128, 0.05);
+            box-shadow: none;
+        }
+
+        /* 代币信息预览 */
+        .token-preview {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: rgba(74, 35, 128, 0.05);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .token-preview.show {
+            display: block;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4a2380;
+            margin-bottom: 8px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .preview-label {
+            color: #666;
+        }
+
+        .preview-value {
+            font-weight: 500;
+            font-family: monospace;
+        }
+
+        /* 代币列表 */
+        .token-list {
+            margin-top: 10px;
+        }
+
+        .token-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .token-item:last-child {
+            border-bottom: none;
+        }
+
+        .token-item:hover {
+            background-color: rgba(74, 35, 128, 0.03);
+        }
+
+        .token-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            /*background-color: #f0f0f0;*/
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a2380;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .token-logo img{
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .token-info {
+            flex: 1;
+        }
+
+        .token-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 0px;
+        }
+
+        .token-symbol {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 0px;
+        }
+
+        .token-address {
+            font-size: 12px;
+            font-family: monospace;
+            color: #4a2380;
+        }
+
+        .token-balance {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: right;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a2380;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #6c2bd9;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+        }
+
+        .copy-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* 删除按钮（弹窗内） */
+        .delete-btn {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(255, 107, 107, 0.2);
+        }
+
+        /* 提示框 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            display: block;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .swap-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <div class="" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+        <div class="header1 flex justify-between align-center" style="">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<div class="logo-icon">C</div>
+                    <div class="logo-text mdui-p-l-1">猎豹Swap</div>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+        </div>
+        <header>
+            <div class="flex justify-start align-center">
+                <nav class="nav-links">
+                    <a href="swap.html">交易</a>
+                    <a href="Liquidity.html">流动性</a>
+                    <a href="#" class="active">代币管理</a>
+                    <a href="swapPairManage.html">资金池管理</a>
+                </nav>
+            </div>
+        </header>
+    </div>
+
+    <div class="container">
+        <!-- 导入代币 -->
+        <div class="card">
+            <div class="card-title">
+                <i>➕</i> 导入代币
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">合约地址</label>
+                <input type="text" class="input-text" id="tokenSearch" placeholder="0x...">
+            </div>
+
+            <button class="btn" onclick="findTokenDetail()">查询代币信息</button>
+
+            <!-- 代币信息预览 -->
+            <div class="token-preview" id="tokenPreview">
+                <div class="preview-title">代币信息预览</div>
+                <input type="hidden" id="findTokenContract" value="0x0000000000000000000000000000000000000000"/>
+                <div class="preview-item">
+                    <div class="preview-label">全称</div>
+                    <div class="preview-value" id="tokenSearch_tokenName">---</div>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-label">简称</div>
+                    <div class="preview-value" id="tokenSearch_tokenSymbol">---</div>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-label">精度</div>
+                    <div class="preview-value" id="tokenSearch_tokenDecimals">---</div>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-label">余额</div>
+                    <div class="preview-value" id="tokenSearch_tokenBalance">---</div>
+                </div>
+                <button class="btn" style="margin-top: 10px;" onclick="addToken2System()">导入代币</button>
+            </div>
+        </div>
+
+        <!-- 代币列表 -->
+        <div class="card">
+            <div class="card-title">
+                <i>🪙</i> 我的代币列表
+            </div>
+
+            <div class="token-list" id="swapTokenList">
+                <!-- 由 JS 自动加载 -->
+            </div>
+            <div class="token-list" id="manageSwapTokenList">
+                <!-- 由 JS 自动加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 代币详情弹窗 -->
+    <div class="modal" id="tokenDetailModal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeModal">×</span>
+            <div class="modal-title">代币详情</div>
+
+            <div class="detail-item">
+                <div class="detail-label">全称</div>
+                <div class="detail-value" id="detailName"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">简称</div>
+                <div class="detail-value" id="detailSymbol"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">精度</div>
+                <div class="detail-value" id="detailDecimals"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">余额</div>
+                <div class="detail-value" id="detailBalance"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">合约地址</div>
+                <div style="display: flex; align-items: center;">
+                    <div class="detail-value" id="detailAddress"></div>
+                    <button class="copy-btn copyBtn" id="copyAddressBtn">复制</button>
+                </div>
+            </div>
+            <input type="hidden" id="selectTokenContract" value="0x0000000000000000000000000000000000000000"/>
+            <!-- 删除按钮 -->
+            <button class="delete-btn" id="deleteUserToken" onclick="deleteUserToken()">删除此代币</button>
+        </div>
+    </div>
+
+    <script>
+
+        // 格式化地址为前6后6
+        function formatAddress(address) {
+            if (!address) return '';
+            return address.substring(0, 6) + '…' + address.substring(address.length - 6);
+        }
+
+        // 格式化余额为 6 位有效数字
+        function formatBalance(balance) {
+            if (!balance) return '0';
+
+            let num = parseFloat(balance);
+            if (num === 0) return '0';
+
+            let result = num.toPrecision(6);
+            result = result.replace(/\.?0*$/, '');
+
+            return result;
+        }
+        
+
+        // 关闭弹窗
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('tokenDetailModal').classList.remove('show');
+        });
+
+        // 点击弹窗外区域关闭
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('tokenDetailModal');
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+
+        // 页面加载时渲染列表
+        // window.onload = renderTokenList;
+    </script>
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/BigInt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/SwapTokenList.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="js/DappSwapTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappSwapMain.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var $ = mdui.$;
+	renderAllTokens2manage();
+	
+	// 打开详情弹窗
+    function openDetailModal(_tokenContract) {
+        const token = tokenListObject[_tokenContract];
+        console.log(token)
+        if(BNBCONTRACT === _tokenContract){
+            document.getElementById('detailAddress').textContent = '';
+        }else{
+            document.getElementById('detailAddress').textContent = formatAddress(_tokenContract);
+            document.getElementById('copyAddressBtn').onclick = function() {
+                copycontext(_tokenContract);
+            };
+        }
+        $("#selectTokenContract").val(_tokenContract);
+        var tokenAmount = $("#manage_tokenBlance_"+_tokenContract).text()+"";
+        document.getElementById('detailName').textContent = token.name;
+        document.getElementById('detailSymbol').textContent = token.symbol;
+        document.getElementById('detailDecimals').textContent = token.decimals;
+        document.getElementById('detailBalance').textContent = tokenAmount + ' ' + token.symbol;
+        document.getElementById('tokenDetailModal').classList.add('show');
+    }
+    
+    function deleteUserToken() {
+        var selectTokenContract = $("#selectTokenContract").val();
+        console.log(selectTokenContract)
+        tishi(userDelToken(selectTokenContract));
+        renderAllTokens2manage();
+        document.getElementById('tokenDetailModal').classList.remove('show');
+    }
+    
+    // var findTokenDetail = function() {
+    //     const address = document.getElementById('contractAddress').value.trim();
+    //     if (!address) return;
+
+    //     // 模拟区块链查询
+    //     const mockToken = {
+    //         name: 'NFT Art Hub',
+    //         symbol: 'NAH',
+    //         decimals: 18,
+    //         balance: '1250.123456789',
+    //         address: address
+    //     };
+        
+    //     $("#findTokenContract").val(address);
+    //     document.getElementById('tokenName').textContent = mockToken.name;
+    //     document.getElementById('tokenSymbol').textContent = mockToken.symbol;
+    //     document.getElementById('tokenDecimals').textContent = mockToken.decimals;
+    //     document.getElementById('tokenBalance').textContent = formatBalance(mockToken.balance) + ' ' + mockToken.symbol;
+
+    //     document.getElementById('tokenPreview').classList.add('show');
+    // }
+    
+    var addToken2System = function() {
+            const address = document.getElementById('findTokenContract').value.toLowerCase().trim();
+            if (!address) return;
+            // 检查是否已存在
+            if (tokenListObject[address]) {
+                tishi('该代币已导入');
+                document.getElementById('tokenPreview').classList.remove('show');
+                document.getElementById('tokenSearch').value = '';
+                return;
+            }
+            var fullName = document.getElementById('tokenSearch_tokenName').textContent;
+            var shortName = document.getElementById('tokenSearch_tokenSymbol').textContent;
+            var decimals = document.getElementById('tokenSearch_tokenDecimals').textContent;
+            
+            userAddToken(address,fullName,shortName,decimals);
+            renderAllTokens2manage();
+
+            document.getElementById('tokenPreview').classList.remove('show');
+            document.getElementById('tokenSearch').value = '';
+
+            tishi('导入成功');
+        }
+</script>

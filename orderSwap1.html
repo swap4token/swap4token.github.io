@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>猎豹Swap - 委托交易</title>
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link href="css/mdui.min.css" rel="stylesheet">
+<link href="css/me.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary-color: #4a2380;
+    --accent-color: #6c2bd9;
+    --secondary-color: #f5f3ff;
+    --card-bg: #ffffff;
+    --text-dark: #333;
+    --text-gray: #888;
+    --text-light: #aaa;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--secondary-color);
+    font-family: "PingFang SC", sans-serif;
+    /*padding: 20px;*/
+    margin: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+.container {
+        max-width: 800px;
+        padding: 20px;
+        margin: 0;
+    }
+    /* 头部样式 */
+    header {
+        padding: 20px 0 10px 0;
+            /*border-bottom: 1px solid rgba(74, 35, 128, 0.1);*/
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        position: relative;
+        overflow: hidden;
+        color: white;
+    }
+
+    .logo-icon::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: var(--secondary-color);
+        border-radius: 50%;
+        top: 8px;
+        left: 12px;
+    }
+
+    .logo-text {
+        font-size: 22px;
+        font-weight: bold;
+        background: linear-gradient(
+            to right,
+            var(--primary-color),
+            var(--accent-color)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+  .market-orders, .my-orders {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    margin-bottom: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 650;
+    color: var(--primary-color);
+    
+    display: flex;
+    align-items: center;
+  }
+
+  .section-title i {
+    margin-right: 8px;
+    font-size: 18px;
+  }
+
+  /* 我的委托标题右侧按钮 */
+  .section-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .token-select-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.03);
+    cursor: pointer;
+  }
+
+  .token-select-logo {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4ecdc4;
+  }
+
+  .token-select-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .add-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    border: none;
+  }
+
+  .market-order-list, .my-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .market-order-item, .my-order-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 6px;
+    background: rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(108, 43, 217, 0.12);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .market-order-item:hover, .my-order-item:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .market-order-item:first-child, .my-order-item:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .market-order-item:last-child, .my-order-item:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom: none;
+  }
+
+  .token-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .token-logo {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+    margin-bottom: 4px;
+  }
+
+  .color-1 { background: #ff6b6b; }
+  .color-2 { background: #4ecdc4; }
+  .color-3 { background: #45b7d1; }
+  .color-4 { background: #ffa07a; }
+  .color-5 { background: #98d8c8; }
+  .color-6 { background: #f7dc6f; }
+  .color-7 { background: #bb8fce; }
+  .color-8 { background: #85c1e9; }
+
+  .info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .pay, .receive {
+    font-size: 13px;
+    color: var(--text-dark);
+  }
+
+  .receive {
+    color: var(--accent-color);
+  }
+
+  .pay strong, .receive strong {
+    font-weight: 620;
+  }
+
+  .address {
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  .progress {
+    width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 3px;
+  }
+
+  .progress-text {
+    font-size: 11px;
+    color: var(--text-gray);
+  }
+
+  /* 标签样式 */
+  .tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+  }
+
+  .tag.completed {
+    background: rgba(78, 205, 196, 0.2);
+    color: #2a9d8f;
+  }
+
+  .tag.partial-cancel {
+    background: rgba(255, 165, 0, 0.2);
+    color: #e67e22;
+  }
+
+  .tag.fully-cancel {
+    background: rgba(255, 107, 107, 0.2);
+    color: #e63946;
+  }
+
+  .tag.cancel {
+    background: rgba(255, 107, 107, 0.2);
+    color: #e63946;
+    pointer-events: none;
+  }
+
+  /* ------------------------------ */
+  /* 弹窗通用样式 */
+  /* ------------------------------ */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: none;
+    justify-content: center;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+
+  .modal.show {
+    display: flex;
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    width: 90%;
+    max-width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
+    border-radius: 15px;
+    padding: 16px 22px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .modal-header {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .modal-header i {
+    margin-right: 8px;
+  }
+
+  .modal-token-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .modal-token-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 8px;
+  }
+
+  .modal-token-arrow {
+    font-size: 18px;
+    color: var(--text-gray);
+    margin: 0 6px;
+  }
+
+  .modal-order-info {
+    margin-bottom: 12px;
+    padding:10px;
+    background: rgba(108, 43, 217, 0.1);
+    border-radius: 6px;
+  }
+
+  .modal-pay, .modal-receive, .modal-remaining {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .modal-receive {
+    color: var(--accent-color);
+  }
+
+  .modal-address {
+    font-size: 14px;
+    /*color: var(--text-light);*/
+  }
+
+  .modal-progress {
+    margin-bottom: 4px;
+  }
+
+  .modal-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-gray);
+    margin-bottom: 6px;
+  }
+
+  .modal-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 7px;
+    position: relative;
+    overflow: visible;
+    cursor: pointer;
+    margin-bottom: 6px;
+  }
+
+  .modal-progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 7px;
+  }
+
+  .modal-progress-thumb {
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--accent-color);
+    transform: translateY(-50%);
+    margin-left: -11px;
+    cursor: grab;
+  }
+
+  .modal-actions-area {
+    /*margin-top: 16px;*/
+  }
+
+  .modal-actions-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .modal-amount-input-wrap {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .modal-amount-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+  }
+
+  .modal-max-amount {
+    font-size: 12px;
+    color: var(--text-gray);
+    display: flex;
+    align-items: center;
+  }
+
+  .modal-btn-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .modal-confirm {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+  }
+
+  .modal-cancel {
+    background: #f1f1f1;
+    color: #666;
+  }
+
+  /* 历史记录 */
+  .modal-history {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .modal-history-title {
+    font-size: 16px;
+    font-weight: 650;
+    margin: 10px 0px;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 8px;
+  }
+
+  .history-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(108, 43, 217, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: var(--accent-color);
+  }
+
+  .history-info {
+    flex: 1;
+  }
+
+  .history-address {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  .history-amount {
+    font-size: 13px;
+    font-weight: 650;
+    margin-top: 2px;
+  }
+
+  .history-time {
+    font-size: 12px;
+    color: var(--text-gray);
+  }
+
+  /* 取消确认弹窗 */
+  .confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  .confirm-modal.show {
+    display: flex;
+  }
+
+  .confirm-content {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 320px;
+    text-align: center;
+  }
+
+  .confirm-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .confirm-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+  }
+
+  .confirm-ok {
+    background: #e63946;
+    color: white;
+  }
+
+  .confirm-cancel {
+    background: #f1f1f1;
+    color: #666;
+  }
+
+  /* ********************************* */
+  /* 以下是第二个页面的样式（创建委托单） */
+  /* ********************************* */
+  /* Swap 风格容器 */
+  .swap-container {
+    background: rgba(0,0,0,0.03);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  /* 代币行 */
+  .token-input {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+  }
+
+  .token-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1px;
+  }
+
+  .token-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .token-icon.ETH { background: #627EEA; }
+  .token-icon.USDT { background: #26A17B; }
+  .token-icon.BNB { background: #F3BA2F; }
+  .token-icon.BTC { background: #F7931A; }
+
+  .token-select {
+    flex: 1;
+    padding: 0;
+  }
+
+  select {
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    width: 100%;
+    background: transparent;
+    text-align: left;
+  }
+
+  .token-balance {
+    font-size: 11px;
+    color: var(--text-gray);
+    padding-left: 3px;
+    line-height: 1.1;
+  }
+
+  input {
+    width: 100%;
+    border: none;
+    font-size: 15px;
+    padding: 3px 0;
+    background: transparent;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  .amount-input {
+    width: 100%;
+    padding: 4px 0;
+    font-size: 17px;
+    border-top: 1px solid #eee;
+    margin-top: 2px;
+  }
+
+  /* 上下箭头 */
+  .swap-arrow {
+    text-align: center;
+    margin: 4px 0;
+    color: var(--text-gray);
+    cursor: pointer;
+  }
+
+  .swap-arrow i {
+    transform: rotate(90deg);
+    font-size: 16px;
+  }
+
+  /* 价格行 */
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin: 8px 0px;
+    padding: 0px 3px;
+    color: var(--text-dark);
+  }
+
+  .price-label {
+    color: var(--text-gray);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .order-desc {
+    font-size: 11.5px;
+    color: var(--text-gray);
+    margin-top: 10px;
+    line-height: 1.3;
+    text-align: left;
+    padding: 8px;
+    background: rgba(0,0,0,0.02);
+    border-radius: 8px;
+  }
+
+  .order-desc strong {
+    color: var(--text-dark);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<!-- 头部导航 -->
+<div class="" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    <div class="header1 flex justify-between align-center" style="">
+		<div class="flex justify-start align-center" style="">
+			<div class="flex justify-start align-center">
+				<div class="logo-icon">C</div>
+                <div class="logo-text mdui-p-l-1">猎豹Swap</div>
+			</div>
+		</div>
+		<div class="flex justify-end align-center">
+			<span onclick="copyAddress()"
+				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+			</span>
+			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+		</div>
+    </div>
+    
+</div>
+<div class="container">
+    
+    <!-- 市场委托 -->
+    <div class="market-orders">
+      <div class="section-header">
+        <div class="section-title">
+          市场委托
+        </div>
+        <!-- ✅ 两个按钮放在这里（标题右侧） -->
+        <div class="section-actions">
+          <div class="token-select-btn">
+            <div class="token-select-logo color-1"></div>
+            <div class="token-select-name">USDT</div>
+          </div>
+          <div class="token-select-btn">
+            <div class="token-select-logo color-2"></div>
+            <div class="token-select-name">ETH</div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="market-order-list">
+        <div class="market-order-item" onclick="openMarketModal('USDT', 'DOGE', '5,800', '1,200,000,000', '0x5678…wxyz', 32)">
+          <div class="token-pair">
+            <div class="token-logo color-3"></div>
+            <div class="token-logo color-4"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>5,800</strong> USDT</div>
+            <div class="receive">获得：<strong>1,200,000,000</strong> DOGE</div>
+            <div class="address">发起人：0x5678…wxyz</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 32%"></div>
+            </div>
+            <div class="progress-text">32%</div>
+          </div>
+        </div>
+    
+        <div class="market-order-item" onclick="openMarketModal('USDT', 'SHIB', '250', '37,000,000,000', '0x1122…3344', 48)">
+          <div class="token-pair">
+            <div class="token-logo color-7"></div>
+            <div class="token-logo color-8"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>250</strong> USDT</div>
+            <div class="receive">获得：<strong>37,000,000,000</strong> SHIB</div>
+            <div class="address">发起人：0x1122…3344</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 48%"></div>
+            </div>
+            <div class="progress-text">48%</div>
+          </div>
+        </div>
+    
+        <div class="market-order-item" onclick="openMarketModal('USDT', 'BTC', '5000', '0.28', '0x5566…7788', 72)">
+          <div class="token-pair">
+            <div class="token-logo color-2"></div>
+            <div class="token-logo color-3"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>5000</strong> USDT</div>
+            <div class="receive">获得：<strong>0.28</strong> BTC</div>
+            <div class="address">发起人：0x5566…7788</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 72%"></div>
+            </div>
+            <div class="progress-text">72%</div>
+          </div>
+        </div>
+    
+        <div class="market-order-item" onclick="openMarketModal('USDT', 'PEPE', '1,200', '85,000,000,000', '0x99aa…bbcc', 100)">
+          <div class="token-pair">
+            <div class="token-logo color-4"></div>
+            <div class="token-logo color-5"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>1,200</strong> USDT</div>
+            <div class="receive">获得：<strong>85,000,000,000</strong> PEPE</div>
+            <div class="address">发起人：0x99aa…bbcc</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="progress-text">100%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 我的委托 -->
+    <div class="my-orders">
+      <div class="section-header">
+        <div class="section-title">
+          我的委托
+        </div>
+    
+        <!-- ✅ 两个按钮放在这里（标题右侧） -->
+        <div class="section-actions">
+          <div class="token-select-btn">
+            <div class="token-select-logo color-2"></div>
+            <div class="token-select-name">USDT</div>
+          </div>
+          <div class="add-btn" onclick="openCreateOrderModal()">+</div>
+        </div>
+      </div>
+    
+      <div class="my-order-list">
+        <div class="my-order-item" onclick="openMyOrderModal('USDT', 'PEPE', '1,200', '85,000,000,000', '0x99aa…bbcc', 100, 'completed')">
+          <div class="token-pair">
+            <div class="token-logo color-3"></div>
+            <div class="token-logo color-4"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>1,200</strong> USDT <span class="tag completed">完成</span></div>
+            <div class="receive">获得：<strong>85,000,000,000</strong> PEPE</div>
+            <div class="address">发起人：0x99aa…bbcc</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="progress-text">100%</div>
+          </div>
+        </div>
+    
+        <div class="my-order-item" onclick="openMyOrderModal('USDT', 'SHIB', '250', '37,000,000,000', '0x1122…3344', 48, 'cancel')">
+          <div class="token-pair">
+            <div class="token-logo color-7"></div>
+            <div class="token-logo color-8"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>250</strong> USDT <span class="tag cancel">取消</span></div>
+            <div class="receive">获得：<strong>37,000,000,000</strong> SHIB</div>
+            <div class="address">发起人：0x1122…3344</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 48%"></div>
+            </div>
+            <div class="progress-text">48%</div>
+          </div>
+        </div>
+    
+        <div class="my-order-item" onclick="openMyOrderModal('USDT', 'BTC', '5000', '0.28', '0x5566…7788', 72, 'cancel')">
+          <div class="token-pair">
+            <div class="token-logo color-2"></div>
+            <div class="token-logo color-3"></div>
+          </div>
+          <div class="info">
+            <div class="pay">支付：<strong>5000</strong> USDT <span class="tag cancel">取消</span></div>
+            <div class="receive">获得：<strong>0.28</strong> BTC</div>
+            <div class="address">发起人：0x5566…7788</div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 72%"></div>
+            </div>
+            <div class="progress-text">72%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+</div>
+
+<!-- 市场委托弹窗 -->
+<div class="modal" id="marketModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <i class="fas fa-file-invoice"></i>
+      订单详情
+    </div>
+
+    <div class="modal-token-header">
+      <div class="modal-token-icon color-1" id="market-logo-from"></div>
+      <div class="modal-token-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="modal-token-icon color-2" id="market-logo-to"></div>
+    </div>
+
+    <div class="modal-order-info">
+      <div class="modal-pay">
+        支付：<strong id="market-pay-amount"></strong>
+        <span id="market-pay-token"></span>
+      </div>
+      <div class="modal-receive">
+        获得：<strong id="market-receive-amount"></strong>
+        <span id="market-receive-token"></span>
+      </div>
+      <div class="modal-remaining" id="market-remaining"></div>
+      <div class="modal-address modal-remaining" id="market-address"></div>
+    </div>
+
+    <div class="modal-progress">
+      <div class="modal-progress-label">
+        <span id="market-progress-min">已完成：0%</span>
+        <span id="market-progress-current">当前：0%</span>
+        <span id="market-progress-max">最大：100%</span>
+      </div>
+
+      <div class="modal-progress-bar" id="market-progressBar">
+        <div class="modal-progress-fill" id="market-progressFill"></div>
+        <div class="modal-progress-thumb" id="market-progressThumb"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions-area">
+      <div class="modal-actions-title">参与数量（支付）</div>
+
+      <div class="modal-amount-input-wrap">
+        <input
+          type="number"
+          class="modal-amount-input"
+          id="market-amount-input"
+          placeholder="输入数量"
+          min="0"
+          max="100"
+          step="0.01"
+          oninput="onMarketAmountInput()"
+        />
+        <div class="modal-max-amount" id="market-max-amount"></div>
+      </div>
+
+      <div class="modal-btn-group">
+        <button class="modal-btn modal-confirm" onclick="alert('兑换功能暂未实现')">兑换</button>
+        <button class="modal-btn modal-cancel" onclick="closeMarketModal()">关闭</button>
+      </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="modal-history">
+      <div class="modal-header">
+        <i class="fas fa-clock-rotate-left"></i> 历史记录
+      </div>
+
+      <div class="history-list">
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x9876…5432</div>
+            <div class="history-amount">+12,500 USDT</div>
+          </div>
+          <div class="history-time">10分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x1234…5678</div>
+            <div class="history-amount">+8,200 USDT</div>
+          </div>
+          <div class="history-time">38分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x5678…1234</div>
+            <div class="history-amount">+3,600 USDT</div>
+          </div>
+          <div class="history-time">2小时前</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 我的委托弹窗 -->
+<div class="modal" id="myOrderModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <i class="fas fa-file-invoice"></i>
+      订单详情
+    </div>
+
+    <div class="modal-token-header">
+      <div class="modal-token-icon color-1" id="my-logo-from"></div>
+      <div class="modal-token-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="modal-token-icon color-2" id="my-logo-to"></div>
+    </div>
+
+    <div class="modal-order-info">
+      <div class="modal-pay">
+        支付：<strong id="my-pay-amount"></strong>
+        <span id="my-pay-token"></span>
+      </div>
+      <div class="modal-receive">
+        获得：<strong id="my-receive-amount"></strong>
+        <span id="my-receive-token"></span>
+      </div>
+      <div class="modal-remaining" id="my-remaining"></div>
+      <div class="modal-address" id="my-address"></div>
+    </div>
+
+    <div class="modal-progress">
+      <div class="modal-progress-label">
+        <span id="my-progress-min">已完成：0%</span>
+        <span id="my-progress-current">当前：0%</span>
+        <span id="my-progress-max">最大：100%</span>
+      </div>
+
+      <div class="modal-progress-bar" id="my-progressBar">
+        <div class="modal-progress-fill" id="my-progressFill"></div>
+        <div class="modal-progress-thumb" id="my-progressThumb"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions-area">
+      <div class="modal-actions-title">取消数量</div>
+
+      <div class="modal-amount-input-wrap">
+        <input
+          type="number"
+          class="modal-amount-input"
+          id="my-amount-input"
+          placeholder="输入数量"
+          min="0"
+          max="100"
+          step="0.01"
+          oninput="onMyAmountInput()"
+        />
+        <div class="modal-max-amount" id="my-max-amount"></div>
+      </div>
+
+      <div class="modal-btn-group">
+        <button class="modal-btn modal-confirm" onclick="showCancelConfirm()">取消委托</button>
+        <button class="modal-btn modal-cancel" onclick="closeMyOrderModal()">关闭</button>
+      </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="modal-history">
+      <div class="modal-history-title">
+        <i class="fas fa-clock-rotate-left"></i> 历史记录
+      </div>
+
+      <div class="history-list">
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x9876…5432</div>
+            <div class="history-amount">+12,500 USDT</div>
+          </div>
+          <div class="history-time">10分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x1234…5678</div>
+            <div class="history-amount">+8,200 USDT</div>
+          </div>
+          <div class="history-time">38分钟前</div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="history-info">
+            <div class="history-address">0x5678…1234</div>
+            <div class="history-amount">+3,600 USDT</div>
+          </div>
+          <div class="history-time">2小时前</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 创建委托单弹窗 -->
+<div class="modal" id="createOrderModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <i class="fas fa-exchange-alt"></i>
+      创建委托单
+    </div>
+
+    <div class="swap-container">
+      <!-- From -->
+      <div class="token-input">
+        <div class="token-header">
+          <div class="token-icon ETH" id="fromIcon">ETH</div>
+          <div class="token-select">
+            <select id="fromToken" onchange="updateFromIcon()">
+              <option value="ETH">ETH</option>
+              <option value="USDT">USDT</option>
+              <option value="BNB">BNB</option>
+              <option value="BTC">BTC</option>
+            </select>
+            <div class="token-balance">余额：<span id="fromBalance">2.45</span></div>
+          </div>
+        </div>
+        <input
+          type="number"
+          id="fromAmount"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          class="amount-input"
+          oninput="calculatePrice()"
+        />
+      </div>
+
+      <!-- 上下箭头 -->
+      <div class="swap-arrow" onclick="swapTokens()">
+        <i class="fas fa-exchange-alt"></i>
+      </div>
+
+      <!-- To -->
+      <div class="token-input">
+        <div class="token-header">
+          <div class="token-icon USDT" id="toIcon">USDT</div>
+          <div class="token-select">
+            <select id="toToken" onchange="updateToIcon()">
+              <option value="USDT">USDT</option>
+              <option value="ETH">ETH</option>
+              <option value="BNB">BNB</option>
+              <option value="BTC">BTC</option>
+            </select>
+            <div class="token-balance">余额：<span id="toBalance">1245.30</span></div>
+          </div>
+        </div>
+        <input
+          type="number"
+          id="toAmount"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          class="amount-input"
+          oninput="calculatePrice()"
+        />
+      </div>
+
+      <!-- 价格 -->
+      <div class="price-row">
+        <div class="price-label">价格</div>
+        <div id="priceText">0.00</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="modal-btn modal-confirm" onclick="createOrder()">创建</button>
+      <button class="modal-btn modal-cancel" onclick="closeCreateOrderModal()">取消</button>
+    </div>
+
+    <!-- 挂单交易说明 -->
+    <div class="order-desc">
+      <strong>挂单交易说明：</strong><br/>
+      • 自定义价格，无需等待市场价格<br/>
+      • 系统自动撮合，成交更高效<br/>
+      • 支持限价挂单，降低滑点风险<br/>
+      • 委托单随时可撤销，灵活可控
+    </div>
+  </div>
+</div>
+
+<!-- 取消确认弹窗 -->
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-content">
+    <div class="confirm-title">确认取消委托？</div>
+    <div>此操作将取消您的委托订单，请确认。</div>
+    <div class="confirm-buttons">
+      <button class="confirm-btn confirm-ok" onclick="confirmCancel()">确认</button>
+      <button class="confirm-btn confirm-cancel" onclick="hideCancelConfirm()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ------------------------------
+  // 市场委托弹窗
+  // ------------------------------
+  let marketIsDragging = false;
+  let marketMinPercent = 0;
+
+  function openMarketModal(fromToken, toToken, payAmount, receiveAmount, address, completedPercent) {
+    marketMinPercent = completedPercent;
+
+    document.getElementById("market-pay-amount").textContent = payAmount;
+    document.getElementById("market-pay-token").textContent = fromToken;
+    document.getElementById("market-receive-amount").textContent = receiveAmount;
+    document.getElementById("market-receive-token").textContent = toToken;
+    document.getElementById("market-address").textContent = "发起人：" + address;
+
+    const remainingPercent = 100 - completedPercent;
+    document.getElementById("market-remaining").textContent = "剩余：" + remainingPercent + "%";
+
+    document.getElementById("market-progress-min").textContent = "已完成：" + completedPercent + "%";
+    document.getElementById("market-progress-max").textContent = "最大：100%";
+
+    const colors = ["color-1", "color-2", "color-3", "color-4", "color-5", "color-6", "color-7", "color-8"];
+    const fromColor = colors[Math.floor(Math.random() * colors.length)];
+    const toColor = colors[Math.floor(Math.random() * colors.length)];
+
+    document.getElementById("market-logo-from").className = "modal-token-icon " + fromColor;
+    document.getElementById("market-logo-to").className = "modal-token-icon " + toColor;
+
+    const fill = document.getElementById("market-progressFill");
+    const thumb = document.getElementById("market-progressThumb");
+    fill.style.width = completedPercent + "%";
+    thumb.style.left = completedPercent + "%";
+
+    document.getElementById("market-progress-current").textContent = "当前：" + completedPercent.toFixed(2) + "%";
+    document.getElementById("market-amount-input").value = completedPercent.toFixed(2);
+    document.getElementById("market-max-amount").textContent = "max: 100";
+
+    document.getElementById("marketModal").classList.add("show");
+
+    // 绑定拖动事件（鼠标 + 触摸）
+    const bar = document.getElementById("market-progressBar");
+    const thumbEl = document.getElementById("market-progressThumb");
+
+    bar.addEventListener("mousedown", startMarketDrag);
+    bar.addEventListener("touchstart", startMarketDrag);
+    thumbEl.addEventListener("mousedown", startMarketDrag);
+    thumbEl.addEventListener("touchstart", startMarketDrag);
+  }
+
+  function startMarketDrag(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    marketIsDragging = true;
+    document.addEventListener("mousemove", marketDrag);
+    document.addEventListener("touchmove", marketDrag);
+    document.addEventListener("mouseup", stopMarketDrag);
+    document.addEventListener("touchend", stopMarketDrag);
+    document.addEventListener("mouseleave", stopMarketDrag);
+    document.addEventListener("touchcancel", stopMarketDrag);
+  }
+
+  function marketDrag(e) {
+    if (!marketIsDragging) return;
+    e.preventDefault();
+
+    let clientX;
+    if (e.type === "mousemove") {
+      clientX = e.clientX;
+    } else {
+      clientX = e.touches[0].clientX;
+    }
+
+    const bar = document.getElementById("market-progressBar");
+    const rect = bar.getBoundingClientRect();
+    let percent = ((clientX - rect.left) / rect.width) * 100;
+    percent = Math.max(marketMinPercent, Math.min(100, percent));
+
+    const fill = document.getElementById("market-progressFill");
+    const thumb = document.getElementById("market-progressThumb");
+    fill.style.width = percent + "%";
+    thumb.style.left = percent + "%";
+
+    document.getElementById("market-progress-current").textContent = "当前：" + percent.toFixed(2) + "%";
+    document.getElementById("market-amount-input").value = percent.toFixed(2);
+  }
+
+  function stopMarketDrag() {
+    marketIsDragging = false;
+    document.removeEventListener("mousemove", marketDrag);
+    document.removeEventListener("touchmove", marketDrag);
+    document.removeEventListener("mouseup", stopMarketDrag);
+    document.removeEventListener("touchend", stopMarketDrag);
+    document.removeEventListener("mouseleave", stopMarketDrag);
+    document.removeEventListener("touchcancel", stopMarketDrag);
+  }
+
+  function onMarketAmountInput() {
+    let value = parseFloat(document.getElementById("market-amount-input").value);
+    if (isNaN(value)) value = marketMinPercent;
+
+    value = Math.max(marketMinPercent, Math.min(100, value));
+
+    const fill = document.getElementById("market-progressFill");
+    const thumb = document.getElementById("market-progressThumb");
+    fill.style.width = value + "%";
+    thumb.style.left = value + "%";
+
+    document.getElementById("market-progress-current").textContent = "当前：" + value.toFixed(2) + "%";
+    document.getElementById("market-amount-input").value = value.toFixed(2);
+  }
+
+  function closeMarketModal() {
+    document.getElementById("marketModal").classList.remove("show");
+    stopMarketDrag();
+  }
+
+  // ------------------------------
+  // 我的委托弹窗
+  // ------------------------------
+  let myIsDragging = false;
+  let myMinPercent = 0;
+
+  function openMyOrderModal(fromToken, toToken, payAmount, receiveAmount, address, completedPercent, status) {
+    myMinPercent = completedPercent;
+
+    document.getElementById("my-pay-amount").textContent = payAmount;
+    document.getElementById("my-pay-token").textContent = fromToken;
+    document.getElementById("my-receive-amount").textContent = receiveAmount;
+    document.getElementById("my-receive-token").textContent = toToken;
+    document.getElementById("my-address").textContent = "发起人：" + address;
+
+    const remainingPercent = 100 - completedPercent;
+    document.getElementById("my-remaining").textContent = "剩余：" + remainingPercent + "%";
+
+    document.getElementById("my-progress-min").textContent = "已完成：" + completedPercent + "%";
+    document.getElementById("my-progress-max").textContent = "最大：100%";
+
+    const colors = ["color-1", "color-2", "color-3", "color-4", "color-5", "color-6", "color-7", "color-8"];
+    const fromColor = colors[Math.floor(Math.random() * colors.length)];
+    const toColor = colors[Math.floor(Math.random() * colors.length)];
+
+    document.getElementById("my-logo-from").className = "modal-token-icon " + fromColor;
+    document.getElementById("my-logo-to").className = "modal-token-icon " + toColor;
+
+    const fill = document.getElementById("my-progressFill");
+    const thumb = document.getElementById("my-progressThumb");
+    fill.style.width = completedPercent + "%";
+    thumb.style.left = completedPercent + "%";
+
+    document.getElementById("my-progress-current").textContent = "当前：" + completedPercent.toFixed(2) + "%";
+    document.getElementById("my-amount-input").value = completedPercent.toFixed(2);
+    document.getElementById("my-max-amount").textContent = "max: 100";
+
+    document.getElementById("myOrderModal").classList.add("show");
+
+    // 绑定拖动事件（鼠标 + 触摸）
+    const bar = document.getElementById("my-progressBar");
+    const thumbEl = document.getElementById("my-progressThumb");
+
+    bar.addEventListener("mousedown", startMyDrag);
+    bar.addEventListener("touchstart", startMyDrag);
+    thumbEl.addEventListener("mousedown", startMyDrag);
+    thumbEl.addEventListener("touchstart", startMyDrag);
+  }
+
+  function startMyDrag(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    myIsDragging = true;
+    document.addEventListener("mousemove", myDrag);
+    document.addEventListener("touchmove", myDrag);
+    document.addEventListener("mouseup", stopMyDrag);
+    document.addEventListener("touchend", stopMyDrag);
+    document.addEventListener("mouseleave", stopMyDrag);
+    document.addEventListener("touchcancel", stopMyDrag);
+  }
+
+  function myDrag(e) {
+    if (!myIsDragging) return;
+    e.preventDefault();
+
+    let clientX;
+    if (e.type === "mousemove") {
+      clientX = e.clientX;
+    } else {
+      clientX = e.touches[0].clientX;
+    }
+
+    const bar = document.getElementById("my-progressBar");
+    const rect = bar.getBoundingClientRect();
+    let percent = ((clientX - rect.left) / rect.width) * 100;
+    percent = Math.max(myMinPercent, Math.min(100, percent));
+
+    const fill = document.getElementById("my-progressFill");
+    const thumb = document.getElementById("my-progressThumb");
+    fill.style.width = percent + "%";
+    thumb.style.left = percent + "%";
+
+    document.getElementById("my-progress-current").textContent = "当前：" + percent.toFixed(2) + "%";
+    document.getElementById("my-amount-input").value = percent.toFixed(2);
+  }
+
+  function stopMyDrag() {
+    myIsDragging = false;
+    document.removeEventListener("mousemove", myDrag);
+    document.removeEventListener("touchmove", myDrag);
+    document.removeEventListener("mouseup", stopMyDrag);
+    document.removeEventListener("touchend", stopMyDrag);
+    document.removeEventListener("mouseleave", stopMyDrag);
+    document.removeEventListener("touchcancel", stopMyDrag);
+  }
+
+  function onMyAmountInput() {
+    let value = parseFloat(document.getElementById("my-amount-input").value);
+    if (isNaN(value)) value = myMinPercent;
+
+    value = Math.max(myMinPercent, Math.min(100, value));
+
+    const fill = document.getElementById("my-progressFill");
+    const thumb = document.getElementById("my-progressThumb");
+    fill.style.width = value + "%";
+    thumb.style.left = value + "%";
+
+    document.getElementById("my-progress-current").textContent = "当前：" + value.toFixed(2) + "%";
+    document.getElementById("my-amount-input").value = value.toFixed(2);
+  }
+
+  function closeMyOrderModal() {
+    document.getElementById("myOrderModal").classList.remove("show");
+    stopMyDrag();
+  }
+
+  // ------------------------------
+  // 取消确认
+  // ------------------------------
+  function showCancelConfirm() {
+    document.getElementById("confirmModal").classList.add("show");
+  }
+
+  function hideCancelConfirm() {
+    document.getElementById("confirmModal").classList.remove("show");
+  }
+
+  function confirmCancel() {
+    hideCancelConfirm();
+    closeMyOrderModal();
+    alert("委托已取消");
+  }
+
+  // ============================================
+  // 以下是第二个页面的功能（创建委托单弹窗）
+  // ============================================
+  function openCreateOrderModal() {
+    document.getElementById("createOrderModal").classList.add("show");
+  }
+
+  function closeCreateOrderModal() {
+    document.getElementById("createOrderModal").classList.remove("show");
+  }
+
+  function updateFromIcon() {
+    const from = document.getElementById("fromToken").value;
+    const icon = document.getElementById("fromIcon");
+    icon.className = "token-icon " + from;
+    icon.textContent = from;
+    document.getElementById("fromBalance").textContent = (Math.random() * 10).toFixed(2);
+  }
+
+  function updateToIcon() {
+    const to = document.getElementById("toToken").value;
+    const icon = document.getElementById("toIcon");
+    icon.className = "token-icon " + to;
+    icon.textContent = to;
+    document.getElementById("toBalance").textContent = (Math.random() * 5000).toFixed(2);
+  }
+
+  function calculatePrice() {
+    const fromAmount = parseFloat(document.getElementById("fromAmount").value) || 0;
+    const toAmount = parseFloat(document.getElementById("toAmount").value) || 0;
+
+    if (fromAmount === 0 || toAmount === 0) {
+      document.getElementById("priceText").textContent = "0.00";
+      return;
+    }
+
+    const price = toAmount / fromAmount;
+    document.getElementById("priceText").textContent = price.toFixed(4);
+  }
+
+  // 互换两个币种
+  function swapTokens() {
+    const fromToken = document.getElementById("fromToken");
+    const toToken = document.getElementById("toToken");
+
+    // 交换值
+    const temp = fromToken.value;
+    fromToken.value = toToken.value;
+    toToken.value = temp;
+
+    // 更新图标
+    updateFromIcon();
+    updateToIcon();
+
+    // 清空输入框
+    document.getElementById("fromAmount").value = "";
+    document.getElementById("toAmount").value = "";
+
+    // 清空价格
+    document.getElementById("priceText").textContent = "0.00";
+  }
+
+  function createOrder() {
+    const from = document.getElementById("fromToken").value;
+    const to = document.getElementById("toToken").value;
+    const fromAmount = document.getElementById("fromAmount").value;
+    const toAmount = document.getElementById("toAmount").value;
+    const price = document.getElementById("priceText").textContent;
+
+    if (!fromAmount || !toAmount || price === "0.00") {
+      alert("请输入有效的数量");
+      return;
+    }
+
+    alert(
+      `创建委托单成功！\n\n` +
+      `从：${fromAmount} ${from}\n` +
+      `到：${toAmount} ${to}\n` +
+      `价格：1 ${from} = ${price} ${to}`
+    );
+
+    closeCreateOrderModal();
+  }
+</script>
+
+</body>
+</html>

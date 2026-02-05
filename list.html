@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BPM IDO平台</title>
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 90px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+        }
+        .order-tabs {
+            display: flex;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(108,43,217,0.08);
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--tab-inactive);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab.active {
+            color: #6c2bd9;
+            border-bottom: 2px solid #6c2bd9;
+        }
+        
+        .tab:hover {
+            color: #6c2bd9;
+        }
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+        
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* 项目列表板块 - 最小高度300px */
+        .project-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 列表标题栏 */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .create-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(74, 35, 128, 0.2);
+            transition: all 0.2s;
+        }
+        .create-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 8px rgba(74, 35, 128, 0.3);
+        }
+
+        /* 项目列表容器 */
+        .project-list {
+            flex: 1;
+        }
+
+        /* 项目列表项 */
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .project-item:last-child {
+            border-bottom: none;
+        }
+        .project-item:hover {
+            background-color: #f8f8f8;
+        }
+
+        .project-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .project-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-info {
+            flex: 1;
+        }
+        .project-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .project-symbol {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-running {
+            background-color: #e8f4fd;
+            color: #4299e1;
+        }
+        .status-ended {
+            background-color: #f0f0f0;
+            color: #999;
+        }
+        .status-pending {
+            background-color: #fef7fb;
+            color: #e53e3e;
+        }
+        .status-swaping{
+            background-color: #E0F2F1;
+            color: #009688;
+        }
+
+        /* 空列表提示 */
+        .empty-tip {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+        .empty-tip i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            display: block;
+            color: #e0e0e0;
+        }
+        .empty-tip p {
+            margin-bottom: 10px;
+        }
+		.create-order-fixed-btn {
+		    padding: 12px;
+		    background: linear-gradient(90deg, #4a2380, #6c2bd9);
+		    color: #fff;
+		    border: none;
+		    border-radius: 12px;
+		    font-size: 15px;
+		    font-weight: 600;
+		    cursor: pointer;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    gap: 8px;
+		    box-shadow: 0 4px 12px rgba(108, 43, 217, 0.4);
+		    transition: all 0.2s ease;
+		}
+    </style>
+</head>
+<body>
+    <div class="header1 flex justify-between align-center" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<img id="logjs" src="img/logo.png" alt="" style="display: block;width: 40px;">
+    				<span class=" mdui-typo-subheading" style="font-weight: 800;padding-left: 2px;">BPMWEB3</span>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+    </div>
+    
+    <div class="container">
+        <!-- 项目列表统一板块 -->
+        <div id="ownerToken" class="project-card">
+            <!-- 列表标题栏+创建按钮 -->
+            <div class="card-header">
+                <h2 class="card-title">我创建项目列表</h2>
+                <span></span>
+            </div>
+			<div id="marketOrders" class="mdui-p-x-1 mdui-p-t-1">
+				<div class="order-tabs">
+				    <div class="tab active" onclick="switchTab('IdoToken')">IDO项目</div>
+				    <div class="tab" onclick="switchTab('FairBeginToken')">公平发射</div>
+					<div class="tab" onclick="switchTab('SelfToken')">自有项目</div>
+				</div>
+			</div>
+			
+            <!-- 有项目时显示列表（启用此部分，注释下方空列表提示） -->
+            <div id="IdoToken" class="project-list" style="">
+				<div id="IdoTokenContent" class="" style="min-height: 200px;">
+					<!--<a href="management.html" class="project-item">-->
+					<!--    <div class="project-logo">-->
+					<!--        <img src="img/frog.jpg" alt="NFT Art Hub Logo">-->
+					<!--    </div>-->
+					<!--    <div class="project-info">-->
+					<!--        <div class="project-name">NFT Art Hub</div>-->
+					<!--        <div class="project-symbol">代币符号：NAH</div>-->
+					<!--    </div>-->
+					<!--    <span class="project-status status-running">进行中</span>-->
+					<!--</a>-->
+					<!--<a href="management.html" class="project-item">-->
+					<!--    <div class="project-logo">-->
+					<!--        <img src="img/logo.png" alt="Meta Game Logo">-->
+					<!--    </div>-->
+					<!--    <div class="project-info">-->
+					<!--        <div class="project-name">Meta Game Token</div>-->
+					<!--        <div class="project-symbol">代币符号：MGT</div>-->
+					<!--    </div>-->
+					<!--    <span class="project-status status-ended">已结束</span>-->
+					<!--</a>-->
+					<!--<a href="management.html" class="project-item">-->
+					<!--    <div class="project-logo">-->
+					<!--        <img src="img/han.jpg" alt="DeFi Lend Logo">-->
+					<!--    </div>-->
+					<!--    <div class="project-info">-->
+					<!--        <div class="project-name">DeFi Lend Protocol</div>-->
+					<!--        <div class="project-symbol">代币符号：DLP</div>-->
+					<!--    </div>-->
+					<!--    <span class="project-status status-pending">待启动</span>-->
+					<!--</a>-->
+					<!-- 无项目时显示提示（启用此部分，注释上方项目列表） -->
+					 <div class="empty-tip">
+					    <i>📃</i>
+					    <p>暂无已创建的IDO项目</p>
+					    <p>点击<b>下面按钮👇</b>开始创建你的第一个项目吧</p>
+					</div>
+				</div>
+				<div class="flex justify-center align-center mdui-color-white mdui-p-a-2">
+					<button onclick="location.href='createIdoToken.html'" class="create-order-fixed-btn" style="width: 100%;" onclick="openCreateOrderModal()">
+					    <i class="fas fa-plus"></i>
+					    创建IDO项目
+					</button>
+				</div>
+            </div>
+			
+			<div id="FairBeginToken" class="project-list" style="display: none">
+				<div id="FairBeginTokenContent" class="" style="min-height: 200px;">
+					
+					<!--<a href="manageFairBeginToken.html" class="project-item">-->
+					<!--    <div class="project-logo">-->
+					<!--        <img src="img/logo.png" alt="Meta Game Logo">-->
+					<!--    </div>-->
+					<!--    <div class="project-info">-->
+					<!--        <div class="project-name">Meta Game Token</div>-->
+					<!--        <div class="project-symbol">代币符号：MGT</div>-->
+					<!--    </div>-->
+					<!--    <span class="project-status status-ended">已结束</span>-->
+					<!--</a>-->
+					<!--<a href="manageFairBeginToken.html" class="project-item">-->
+					<!--    <div class="project-logo">-->
+					<!--        <img src="img/han.jpg" alt="DeFi Lend Logo">-->
+					<!--    </div>-->
+					<!--    <div class="project-info">-->
+					<!--        <div class="project-name">DeFi Lend Protocol</div>-->
+					<!--        <div class="project-symbol">代币符号：DLP</div>-->
+					<!--    </div>-->
+					<!--    <span class="project-status status-pending">待启动</span>-->
+					<!--</a>-->
+					<!-- 无项目时显示提示（启用此部分，注释上方项目列表） -->
+					 <div class="empty-tip">
+					    <i>📃</i>
+					    <p>暂无已创建的公平发射项目</p>
+					    <p>点击<b>下面按钮👇</b>开始创建你的第一个项目吧</p>
+					</div> 
+				</div>
+				<div class="flex justify-center align-center mdui-color-white mdui-p-a-2">
+					<button onclick="location.href='createFairBeginToken.html'" class="create-order-fixed-btn" style="width: 100%;" onclick="openCreateOrderModal()">
+					    <i class="fas fa-plus"></i>
+					    创建公平发射项目
+					</button>
+				</div>
+			</div>
+			
+			<div id="SelfToken" class="project-list" style="display: none;">
+			    <div id="SelfTokenContent" class="" style="min-height: 200px;">
+			    	
+			    	<!--<a href="manageSelfToken.html" class="project-item">-->
+			    	<!--    <div class="project-logo">-->
+			    	<!--        <img src="img/han.jpg" alt="DeFi Lend Logo">-->
+			    	<!--    </div>-->
+			    	<!--    <div class="project-info">-->
+			    	<!--        <div class="project-name">DeFi Lend Protocol</div>-->
+			    	<!--        <div class="project-symbol">代币符号：DLP</div>-->
+			    	<!--    </div>-->
+			    	<!--    <span class="project-status status-pending">待启动</span>-->
+			    	<!--</a>-->
+			    	<!-- 无项目时显示提示（启用此部分，注释上方项目列表） -->
+			    	 <div class="empty-tip">
+			    	    <i>📃</i>
+			    	    <p>暂无已创建的自有项目</p>
+			    	    <p>点击<b>下面按钮👇</b>开始创建你的第一个项目吧</p>
+			    	</div>
+			    </div>
+				<div class="flex justify-center align-center mdui-color-white mdui-p-a-2">
+					<button onclick="location.href='createSelfToken.html'" class="create-order-fixed-btn" style="width: 100%;" onclick="openCreateOrderModal()">
+						<i class="fas fa-plus"></i>
+						创建自有项目
+					</button>
+				</div>
+			</div>
+            
+            
+        </div>
+        
+        <!-- 项目列表统一板块 -->
+        <div class="project-card mdui-m-t-2">
+            <!-- 列表标题栏+创建按钮 -->
+            <div class="card-header">
+                <h2 class="card-title">参与项目列表</h2>
+                <span></span>
+            </div>
+            
+            <div id="userPlayIdoTokenContent" class="project-list" style="min-height: 160px;">
+                <!--<a href="endIdoProject.html" class="project-item">-->
+                <!--    <div class="project-logo">-->
+                <!--        <img src="img/frog.jpg" alt="DeFi Lend Logo">-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="project-name">FROG</div>-->
+                <!--        <div class="project-symbol">代币符号：FROG</div>-->
+                <!--    </div>-->
+                <!--    <span class="project-status status-pending">已开盘</span>-->
+                <!--</a>-->
+                <!--<a href="endIdoProject.html" class="project-item">-->
+                <!--    <div class="project-logo">-->
+                <!--        <img src="img/han.jpg" alt="DeFi Lend Logo">-->
+                <!--    </div>-->
+                <!--    <div class="project-info">-->
+                <!--        <div class="project-name">HORSE</div>-->
+                <!--        <div class="project-symbol">代币符号：HORSE</div>-->
+                <!--    </div>-->
+                <!--    <span class="project-status status-pending">未开盘</span>-->
+                <!--</a>-->
+                <!-- 无项目时显示提示（启用此部分，注释上方项目列表） -->
+                 <div class="empty-tip">
+                    <i>📑</i>
+                    <p>暂无参与的IDO项目</p>
+                    <p>前往IDO广场开始参与你的第一个项目吧</p>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item " id="nav-ido">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-text">IDO广场</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item active" id="nav-my-projects">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">我的项目</span>
+        </a>
+        <a href="swap.html" class="nav-item" id="nav-swap">
+            <span class="nav-icon">🔄</span>
+            <span class="nav-text">Swap</span>
+        </a>
+        <a href="user.html" class="nav-item" id="nav-governance">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </a>
+    </div>
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script> 
+<script src="js/create/CreateTokenTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/PublicTokenList.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var $ = mdui.$;
+	function switchTab(tabName) {
+		$("#marketOrders .tab").removeClass('active');
+		event.target.classList.add('active');
+		$("#ownerToken .project-list").hide();
+		$("#"+tabName).show();
+	}
+</script>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>核按钮</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/me.css" rel="stylesheet">
+    
+    <style>
+        /* 主背景：深灰蓝（非纯黑）+ 柔和光效 */
+        .main-bg {
+            background-color: #12141d; /* 深灰蓝底色 */
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+        }
+        /* 边框优化：同色系亮灰色+极细+圆角 */
+        .soft-border {
+            border: 0.5px solid #3a3f52; /* 与背景同色系，更亮的深灰 */
+            border-radius: 12px; /* 适中圆角 */
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.03), inset 0 0 4px rgba(255, 255, 255, 0.02);
+        }
+        /* 按钮样式优化 */
+        .flame-btn {
+            background: linear-gradient(45deg, #ff9a3c, #ff5e3a); /* 保持按钮橙色渐变，作为视觉焦点 */
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .flame-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(255, 140, 0, 0.3);
+        }
+        .flame-btn:disabled {
+            background: linear-gradient(45deg, #444, #222);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        /* 钱包按钮样式 */
+        .wallet-btn {
+            background: linear-gradient(45deg, #ff9a3c, #ff5e3a); /* 钱包按钮蓝色渐变 */
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .wallet-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+        /* 文字发光效果优化 */
+        .glow-text {
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.15); /* 白色柔光，更协调 */
+        }
+        /* 进度条优化 */
+        .progress-bar {
+            background: linear-gradient(90deg, #ff9a3c, #ff5e3a);
+            box-shadow: 0 0 6px rgba(255, 140, 0, 0.3);
+            border-radius: 4px;
+        }
+        /* 板块背景：分层深灰，增强对比但不刺眼 */
+        .card-bg {
+            background-color: #1a1d2b; /* 主板块背景 */
+        }
+        .sub-card-bg {
+            background-color: #242838; /* 子板块背景 */
+        }
+        /* 奖励文字发光 */
+        .reward-text {
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+        }
+        /* 份数选择按钮 */
+        .quantity-btn {
+            background-color: #242838;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            border: 0.5px solid #3a3f52; /* 增加边框，提升辨识度 */
+        }
+        .quantity-btn:hover:not(.bg-orange-500) {
+            background-color: #2d3246;
+            border-color: #4a4f66;
+        }
+        /* Logo样式 */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            /*//background: linear-gradient(45deg, #ff9a3c, #ff5e3a);*/
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        /* 输入框样式（适配内部按钮） */
+        .ref-input-container {
+            position: relative;
+            width: 100%;
+        }
+        .input-style {
+            width: 100%;
+            border-radius: 8px;
+            background-color: #242838;
+            border: 1px solid #3a3f52; /* 同边框颜色 */
+            padding-right: 80px; /* 为右侧按钮预留空间 */
+        }
+        .input-style:focus {
+            border-color: #ff9a3c; /* 聚焦时关联按钮颜色 */
+            outline: none;
+        }
+        /* 输入框内部绑定按钮 */
+        .inner-bind-btn {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 2px 16px;
+            font-size: 14px;
+            height: 85%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 提取说明文字样式 */
+        .withdraw-note {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .cuIconfont-spin {
+        	-webkit-animation: cuIcon-spin 5s infinite linear;
+        	animation: cuIcon-spin 5s infinite linear;
+        	display: inline-block;
+        }
+    </style>
+</head>
+<body class="main-bg text-white min-h-screen p-4 md:p-8">
+    <!-- 页面顶部：Logo + 钱包按钮 -->
+    <div class="max-w-7xl mx-auto mb-6 flex justify-between items-center">
+        <!-- 左上角：Logo + 项目名称 -->
+        <div class="logo">
+            <div class="logo-icon">
+                <img src="img/han.png" style="width:100%;heigth:100%"/>
+            </div>
+            <div>
+                <div class="text-2xl font-bold glow-text">核按钮(NB)</div>
+            </div>
+        </div>
+        <!-- 右上角：连接钱包按钮 -->
+        
+        <div>
+            <button id="selectAddress" class="wallet-btn text-white font-bold px-3 py-2 flex items-center gap-2">
+                连接钱包
+            </button>
+            
+        </div>
+    </div>
+    
+
+    <!-- 页面容器 -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        
+        <!-- 左侧：IDO进度与用户中心 -->
+        <div class="md:col-span-2 space-y-6" style="margin-top: -10px">
+            <!-- 项目头部 -->
+            <div class="soft-border card-bg p-6 flex flex-col items-center" style="display: none;">
+                <div class="text-4xl font-bold glow-text mb-2">
+                    <img src="img/han.png" class="cuIconfont-spin" style="width:35px;heigth:35px;border-radius: 50%;"/>
+                    核按钮 IDO
+                </div>
+                <div class="text-gray-300 text-sm mb-4">Binance Smart Chain · 只涨停 不跌停</div>
+                
+                
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="width: 100%">
+                    <div class="sub-card-bg p-4 rounded-8">
+                        <div class="text-gray-400 text-sm">认购量总量</div>
+                        <div id="" class="text-xl font-bold">
+                            2000000000.00
+                        </div>
+                        <div class="text-gray-400 text-sm">核按钮</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="width: 100%;margin-top:12px;">
+                    <div class="sub-card-bg p-4 rounded-8">
+                        <div class="text-gray-400 text-sm">已完份数</div>
+                        <div id="totalNumber" class="text-xl font-bold text-orange-400">
+                            0
+                        </div>
+                        <div class="text-gray-400 text-sm">份</div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- 用户中心 -->
+            <div class="soft-border card-bg p-6 space-y-6">
+                
+                <div class="text-2xl font-bold glow-text">查询网体数据</div>
+                
+
+                <!-- 推荐人绑定 -->
+                <div class="relative">
+                    <div class="text-gray-400 text-sm mb-2">查询地址</div>
+                    <div class="ref-input-container">
+                        <input 
+                            id="parentAddress"
+                            type="text" 
+                            placeholder="输入查询地址" 
+                            class="input-style px-4 py-2"
+                        >
+                        <button id="bindBtn" onclick="tishi('输入错误')"  class="flame-btn inner-bind-btn text-white font-bold" style="display: none;">查询</button>
+                    </div>
+                </div>
+                
+        
+                <button id="privateBuyBtn"  onclick="searchDataCheck()" class="flame-btn w-full text-white font-bold py-3 text-lg">
+                    <i class="fa fa-rocket mr-2"></i>查询
+                </button>
+                <!-- 私募规则提示 -->
+                <div class="w-full mt-4 text-center text-sm text-yellow-300">
+                    
+                </div>
+            </div>
+
+            <!-- 用户中心 -->
+            <div class="soft-border card-bg p-6 space-y-6">
+                
+                <div class="text-2xl font-bold glow-text">推荐人加池数据</div>
+                
+                <!-- 个人状态（移除奖励项，移至独立提取板块） -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    
+                    <div class="sub-card-bg p-4 rounded-8" style="border-radius: 8px;">
+                        <div class="text-gray-300 text-sm font-bold">上三代</div>
+                        <div id="" class="text-gray-500 flex justify-start align-center copyBtn" onclick="copyUserAddress3()" style="font-size:12px">
+                            <span id="parentShareAddress3">……</span> <i class="fa fa-copy ml-1"></i></div>
+                        
+                        <div id="" class="flex justify-between " style="font-size:12px">
+                            <div class="text-gray-400 text-sm">USDT</div>
+                            <span id="userDepositAmount3" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">NB</div>
+                            <span id="userDepositTokenAmount3" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                    </div>
+                    <div class="sub-card-bg p-4 rounded-8" style="border-radius: 8px;">
+                        <div class="text-gray-300 text-sm font-bold">上二代</div>
+                        <div id="" class="text-gray-500 flex justify-start align-center copyBtn" onclick="copyUserAddress2()" style="font-size:12px"><span id="parentShareAddress2">……</span> <i class="fa fa-copy ml-1"></i></div>
+
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">USDT</div>
+                            <span id="userDepositAmount2" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">NB</div>
+                            <span id="userDepositTokenAmount2" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                    </div>
+                    <div class="sub-card-bg p-4 rounded-8" style="border-radius: 8px;">
+                        <div class="text-gray-300 text-sm font-bold">上一代</div>
+                        <div id="" class="text-gray-500 flex justify-start align-center copyBtn" onclick="copyUserAddress1()" style="font-size:12px"><span id="parentShareAddress1">……</span> <i class="fa fa-copy ml-1"></i></div>
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">USDT</div>
+                            <span id="userDepositAmount1" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">NB</div>
+                            <span id="userDepositTokenAmount1" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sub-card-bg p-4 rounded-8" style="border-radius: 8px;">
+                        <div class="text-gray-300 text-sm font-bold">当前地址</div>
+                        <div id="" class="text-gray-500 flex justify-start align-center copyBtn" onclick="copyUserAddress0()" style="font-size:12px"><span id="parentShareAddress0" class="">……</span> <i class="fa fa-copy ml-1"></i></div>
+                        
+                        
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">USDT</div>
+                            <span id="userDepositAmount" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                        <div id="" class="flex justify-between" style="font-size:12px">
+                            <div class="text-gray-400 text-sm">NB</div>
+                            <span id="userDepositTokenAmount" class=" text-sm text-green-400 font-bold">0</span>
+                        </div>
+                        <!--<div class="text-xs text-gray-500 mt-1">（<span id="userDepositOverNumber">0</span>份）</div>-->
+                    </div>
+                </div>
+                
+                <!-- 私募规则提示 -->
+                <div class="w-full mt-4 text-center text-sm text-yellow-300">
+                    
+                </div>
+            </div>
+            
+            
+
+        </div>
+
+        <!-- 右侧：直推列表 + 邀请分享融合板块 -->
+        <div class="md:col-span-1 space-y-6">
+            
+
+            <!-- 邀请分享融合板块 -->
+            <div class="soft-border card-bg p-6 space-y-6">
+                <div class="text-2xl font-bold glow-text">团队加池数据</div>
+
+                <!-- 分享奖励说明 -->
+                <div class="sub-card-bg p-4 rounded-8" style="display: none;">
+                    <div class="text-gray-300 font-bold mb-2 flex items-center gap-2">
+                        <i class="fa fa-gift text-yellow-300"></i>分享奖励规则
+                    </div>
+                    <div class="text-gray-300 text-sm space-y-2">
+                        <p>成功邀请好友参与IDO，即可获得三代好友认购量对应的代币奖励：</p>
+                        <p>🔥 一代好友：奖励其认购量的 <span class="text-yellow-300 font-bold">5%</span> 代币</p>
+                        <p>🔥 二代好友：奖励其认购量的 <span class="text-yellow-300 font-bold">5%</span> 代币</p>
+                        <p>🔥 三代好友：奖励其认购量的 <span class="text-yellow-300 font-bold">5%</span> 代币</p>
+                    </div>
+                </div>
+
+
+                <!-- 三代业绩 -->
+                <div class="sub-card-bg p-4 rounded-8">
+                    <div class="text-gray-300 font-bold mb-2">伞下每层LP加池(USDT)</div>
+                    <div class="flex justify-between items-center pb-2">
+                        <div class="text-gray-300">一代业绩（直推）</div>
+                        <div id="" class="font-bold text-orange-400"><span id="userShareDepositAmount0">0</span> USDT</div>
+                    </div>
+                    <div class="flex justify-between items-center pb-2">
+                        <div class="text-gray-300">二代业绩</div>
+                        <div id="" class="font-bold text-orange-400"><span id="userShareDepositAmount1">0</span> USDT</div>
+                    </div>
+                    <div class="flex justify-between items-center pb-2">
+                        <div class="text-gray-300">三代业绩</div>
+                        <div id="" class="font-bold text-orange-400"><span id="userShareDepositAmount2">0</span> USDT</div>
+                    </div>
+                    <div class="border-t border-gray-600/30 pt-3 flex justify-between items-center">
+                        <div class="text-white font-bold">总业绩(三代)</div>
+                        <div id="" class="font-bold text-yellow-300 reward-text"><span id="userShareUsdtDepositAmount">0</span> USDT</div>
+                    </div>
+                    <div class="pt-3 flex justify-between items-center">
+                    </div>
+                </div>
+                
+                
+                <div class="sub-card-bg p-4 rounded-8">
+                    <div class="text-gray-300 font-bold mb-2">伞下每层LP加池(NB)</div>
+                    <div class="flex justify-between items-center pb-2">
+                        <div class="text-gray-300">一代业绩（直推）</div>
+                        <div id="" class="font-bold text-orange-400"><span id="userShareDepositTokenAmount0">0</span> NB</div>
+                    </div>
+                    <div class="flex justify-between items-center pb-2">
+                        <div class="text-gray-300">二代业绩</div>
+                        <div id="" class="font-bold text-orange-400"><span id="userShareDepositTokenAmount1">0</span> NB</div>
+                    </div>
+                    <div class="flex justify-between items-center pb-2">
+                        <div class="text-gray-300">三代业绩</div>
+                        <div id="" class="font-bold text-orange-400"><span id="userShareDepositTokenAmount2">0</span> NB</div>
+                    </div>
+                    <div class="border-t border-gray-600/30 pt-3 flex justify-between items-center">
+                        <div class="text-white font-bold">总业绩(三代)</div>
+                        <div id="" class="font-bold text-yellow-300 reward-text"><span id="userShareUsdtDepositTokenAmount">0</span> NB</div>
+                    </div>
+                    <div class="pt-3 flex justify-between items-center">
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- 项目亮点（底部通栏） -->
+        <div class="md:col-span-3 soft-border card-bg p-6" style="display: none;">
+            <div class="text-2xl font-bold glow-text mb-6">项目亮点与优势</div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 亮点1 -->
+                <div class="sub-card-bg p-5 rounded-8 space-y-3">
+                    <div class="text-orange-400 text-2xl">
+                        <i class="fa fa-shield"></i>
+                    </div>
+                    <div class="font-bold text-lg">智能合约涨停板</div>
+                    <div class="text-gray-300 text-sm">20%涨幅自动暂停交易，写入BSC合约，只涨停不跌停</div>
+                </div>
+                
+                <!-- 亮点2 -->
+                <div class="sub-card-bg p-5 rounded-8 space-y-3">
+                    <div class="text-orange-400 text-2xl">
+                        <i class="fa fa-line-chart"></i>
+                    </div>
+                    <div class="font-bold text-lg">抗跌滑点机制</div>
+                    <div class="text-gray-300 text-sm">跌幅超8%时滑点递增，滑点收益注入LP池，强化底部支撑</div>
+                </div>
+                
+                <!-- 亮点3 -->
+                <div class="sub-card-bg p-5 rounded-8 space-y-3">
+                    <div class="text-orange-400 text-2xl">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <div class="font-bold text-lg">三重分红模型</div>
+                    <div class="text-gray-300 text-sm">AI量化+滑点收益+底池燃烧，50%收益回馈持有者</div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8 text-orange-300 font-bold text-xl glow-text">
+                我们不做百倍，我们只做百板
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部版权 -->
+    <div class="max-w-7xl mx-auto mt-8 text-center text-gray-500 text-sm">
+        © 2025 核按钮 IDO 平台 | 基于币安智能链开发 | 慢雾科技 & CertiK 审计
+    </div>
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappHanTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappHanLpValueMain.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+var tishi = function(message) {
+	// 创建消息元素
+	const notification = document.createElement('div');
+	notification.textContent = message;
+	
+	// 设置消息样式
+	notification.style.position = 'fixed';
+	notification.style.top = '10%';
+	notification.style.left = '50%';
+	notification.style.transform = 'translateX(-50%)';
+	notification.style.backgroundColor = '#ff9a3c';
+	notification.style.color = 'white';
+	notification.style.padding = '15px 25px';
+	notification.style.borderRadius = '8px';
+	notification.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+	notification.style.zIndex = '1000';
+	notification.style.opacity = '0';
+	notification.style.transition = 'opacity 0.3s ease';
+	notification.style.fontWeight = '500';
+	notification.style.fontSize = '16px';
+	
+	// 添加到页面
+	document.body.appendChild(notification);
+	
+	// 触发动画
+	setTimeout(() => {
+		notification.style.opacity = '1';
+	}, 10);
+	
+	// 3秒后移除
+	setTimeout(() => {
+		notification.style.opacity = '0';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2500);
+}
+
+var userSelectNumber = 1;
+var todayOneUsdtAmount = 0;
+var selectIdoAmount = function(ele, _number){
+    console.log('_number'+_number)
+    userSelectNumber = _number;
+    console.log('userSelectNumber'+userSelectNumber)
+    $(".quantity-btn").removeClass("bg-orange-500");
+    $(ele).addClass("bg-orange-500");
+}
+</script>

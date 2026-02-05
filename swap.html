@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>猎豹Swap - 极致交易速度的Swap</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a2380; /* 主色-深紫 */
+            --secondary-color: #f5f3ff; /* 背景色-浅紫 */
+            --accent-color: #6c2bd9; /* 强调色-亮紫 */
+            --text-color: #333; /* 主文本色 */
+            --light-gray: #f8f8f8; /* 浅灰背景 */
+            --card-bg: #ffffff; /* 卡片背景 */
+            --border-radius: 15px; /* 统一圆角 */
+            --transition: all 0.2s ease; /* 动效时长 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif; /* 统一字体 */
+        }
+
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 43, 217, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(108, 43, 217, 0.05) 0%, transparent 20%);
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;    
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 头部样式 */
+        header {
+            padding: 20px 0 10px 0;
+            /*border-bottom: 1px solid rgba(74, 35, 128, 0.1);*/
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            top: 8px;
+            left: 12px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .nav-links a.active::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+
+        .wallet-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.2);
+        }
+
+        /* 主要内容区 */
+        .hero {
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 14px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+            color: #666;
+        }
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* 交易卡片 */
+        .swap-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .swap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .swap-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .settings-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .settings-btn:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        .token-input {
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            margin-bottom: 10px;
+        }
+
+        .token-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .token-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .balance {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .token-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .token-amount {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 21px;
+            font-weight: 550;
+            width: 70%;
+            outline: none;
+        }
+
+        .token-amount::placeholder {
+            color: #999;
+        }
+
+        .token-btn {
+            background-color: var(--light-gray);
+            border: none;
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: rgba(108, 43, 217, 0.05);
+        }
+
+        .token-btn:hover {
+            background-color: rgba(108, 43, 217, 0.1);
+        }
+
+        .token-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            /*background: linear-gradient(135deg, var(--primary-color), var(--accent-color));*/
+        }
+        
+        .token-icon img {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+        }
+
+
+        .swap-arrow {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .arrow-btn {
+            background-color: var(--light-gray);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .arrow-btn:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .swap-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swap-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.2);
+        }
+
+        .swap-btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .swap-btn:hover::after {
+            left: 100%;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            align-items: center;
+            /*padding-top: 8px;*/
+            padding:8px 4px 0px 4px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            color: var(--text-color);
+        }
+        .batch-input {
+            width: 80px;
+            background-color: var(--light-gray);
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 7px 12px;
+            color: var(--text-color);
+            font-size: 15px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .batch-input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            background-color: rgba(108, 43, 217, 0.05);
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+        /* 代币信息预览 */
+        .token-preview {
+            margin-top: 0px;
+            padding: 12px;
+            background-color: rgba(74, 35, 128, 0.05);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .token-preview.show {
+            display: block;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4a2380;
+            margin-bottom: 8px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .preview-label {
+            color: #666;
+        }
+
+        .preview-value {
+            font-weight: 500;
+            font-family: monospace;
+        }
+        .smallbtn {
+		    background-color: white;
+		    color: #4a2380;
+		    border: 1px solid #4a2380;
+		    padding: 8px 10px;
+		    border-radius: 10px;
+		    font-size: 12px;
+		    cursor: pointer;
+		    transition: all 0.3s;
+		}
+		.smallbtn:hover {
+		    background-color: rgba(74, 35, 128, 0.55);
+		    box-shadow: 0 4px 10px rgba(74, 35, 128, 0.3);
+		}
+        /* 设置面板样式 */
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-title {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        .slippage-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .slippage-option {
+            flex: 1;
+            background-color: var(--light-gray);
+            border: 1px solid #f0f0f0;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .slippage-option.active {
+            background-color: rgba(108, 43, 217, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .slippage-option:hover {
+            border-color: var(--accent-color);
+        }
+
+        .slippage-input {
+            width: 100%;
+            background-color: var(--light-gray);
+            border: 1px solid #f0f0f0;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            color: var(--text-color);
+            margin-bottom: 12px;
+        }
+
+        .deadline-input {
+            width: 100%;
+            background-color: var(--light-gray);
+            border: 1px solid #f0f0f0;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            color: var(--text-color);
+        }
+        /* 批量开关样式 */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .toggle-label {
+            flex: 1;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle.active {
+            background-color: var(--accent-color);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle.active .toggle-slider {
+            left: 28px;
+        }
+
+        /* 代币选择器样式 */
+        .token-search {
+            width: 100%;
+            background-color: var(--light-gray);
+            border: 1px solid #f0f0f0;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            margin-top: -6px;
+        }
+
+        .token-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .token-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+        }
+
+        .token-item:hover {
+            background-color: rgba(108, 43, 217, 0.05);
+        }
+
+        .token-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            /*background: linear-gradient(135deg, var(--primary-color), var(--accent-color));*/
+            margin-right: 12px;
+        }
+        
+        .token-item-icon img{
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .token-item-info {
+            flex: 1;
+        }
+
+        .token-item-symbol {
+            font-weight: bold;
+        }
+
+        .token-item-name {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .token-item-balance {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 特性部分 */
+        .features {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 50px;
+            color: var(--primary-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(74, 35, 128, 0.1);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background-color: rgba(108, 43, 217, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-size: 30px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .feature-desc {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 底部 */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+            color: #666;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .swap-card {
+                padding: 20px;
+            }
+        }
+        
+        #auditModal .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+         .modal.show {
+            display: flex;
+        }
+        #auditModal .modal-content {
+            position: fixed;
+            top: 30px;
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 320px;
+            border-radius: 15px;
+            padding: 20px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        
+        /* 加载动画样式 */
+        #auditModal .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--secondary-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 弹窗文字样式 */
+        #auditModal .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 7px;
+        }
+        
+        #auditModal .modal-desc {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+        .success-icon {
+            color: #26A17B;
+            font-size: 15px;
+        }
+        .fail-icon {
+            color: #ff4d4f;
+            font-size: 15px;
+        }
+        .slippage-num {
+            color: #6c2bd9;
+            font-weight: 600;
+          }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <div class="" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+        <div class="header1 flex justify-between align-center" style="">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<div class="logo-icon">C</div>
+                    <div class="logo-text mdui-p-l-1">猎豹Swap</div>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+        </div>
+        <header>
+            <div class="flex justify-start align-center">
+                <nav class="nav-links">
+                    <a href="#" class="active">交易</a>
+                    <a href="Liquidity.html">流动性</a>
+                    <a href="swapTokenManage.html">代币管理</a>
+                    <a href="swapPairManage.html">资金池管理</a>
+                </nav>
+            </div>
+        </header>
+    </div>
+    <div class="container">
+        
+        
+
+        <!-- 主要内容区 -->
+        <main>
+            <section class="hero">
+                <!--<p>猎豹Swap专为高频交易设计，提供秒级成交和超低滑点，让您的交易如猎豹般迅捷。</p>-->
+
+                <!-- 交易卡片 -->
+                <div class="swap-card ">
+                    <div class="swap-header mdui-color-red1">
+                        <div class="swap-title">兑换</div>
+                        <button class="settings-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
+                    </div>
+                    
+                    <div class="token-input">
+                        <div class="token-header mdui-color-red1">
+                            <div class="token-label">支付</div>
+                            <div onclick="fromTokenInputMax()" class="balance">余额: <span id="fromTokenBalance">0</span></div>
+                        </div>
+                        <input type="hidden" id="fromTokenContract" value="0x0000000000000000000000000000000000000000"/>
+                        <div class="token-selector mdui-color-green1">
+                            <input id="fromTokenInput" type="number" oninput="swapTokenAmountDataInit(this.value, 0)" class="token-amount" placeholder="0.0" value="">
+                            <button onclick="fromTokenSelect()" class="token-btn" id="fromTokenBtn">
+                                <div class="token-icon"><img class="" src="img/token/0x0000000000000000000000000000000000000000.png" onerror="this.src='./img/none.png';"></div>
+                                BNB
+                                <span><i class="fas fa-chevron-down"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="swap-arrow">
+                        <button onclick="changeTokensDirection()" class="arrow-btn"><i class="fas fa-arrow-down"></i></button>
+                    </div>
+                    
+                    <div class="token-input">
+                        <div class="token-header mdui-color-red1">
+                            <div class="token-label">接收</div>
+                            <div class="balance">余额: <span id="toTokenBalance">0</span></div>
+                        </div>
+                        <input type="hidden" id="toTokenContract" value="0x55d398326f99059ff775485246999027b3197955"/>
+                        <div class="token-selector mdui-color-green1">
+                            <input id="toTokenInput" readonly oninput="swapTokenAmountDataInit(0, this.value)" type="number" class="token-amount" placeholder="0.0" value="">
+                            <button onclick="toTokenSelect()" class="token-btn" id="toTokenBtn">
+                                <div class="token-icon"><img class="" src="img/token/0x55d398326f99059ff775485246999027b3197955.png" onerror="this.src='./img/none.png';"></div>
+                                USDT
+                                <span><i class="fas fa-chevron-down"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mdui-p-t-1">
+                        <!-- 批量交易输入框（已优化样式） -->
+                        <div class="info-row" id="batchRow" style="display:none;">
+                            <div class="info-label">批量笔数 (1-100)</div>
+                            <input type="number" class="batch-input" id="batchCount" min="1" max="100" value="1">
+                        </div>
+                    
+                        <div class="info-row">
+                            <div class="info-label">价格</div>
+                            <div id="tokenPriceStats" class="info-value">1 <span class="fromTokenSymbol">BNB</span> = <span id="oneFromTokenToTokenAmount">1.000</span> <span class="toTokenSymbol">USDT</span></div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">最大滑点</div>
+                            <div class="info-value" onclick="showSettingModal()" style="font-weight: bold;color:#4a2380;"><span id="customSlippageValue">0.5</span> % | 智能</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">路由</div>
+                            <div id="SwapRouterPath" class="info-value flex justify-end align-center" style="font-size:11px;">
+                                ...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="mdui-p-b-1">
+                        <div id="swapapproveBtn" style="display:none;">
+                            <button onclick="approveTokenCheck()" class="swap-btn"><span class="fromTokenSymbol"></span> 允许</button>
+                        </div>
+                        <div id="swapToken2Token">
+                            <button onclick="swapToken2Token()" class="swap-btn">交换</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+
+            <!-- 特性部分 -->
+            <section class="features">
+                <h2 class="section-title">为什么选择猎豹Swap</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                        <h3 class="feature-title">极致速度</h3>
+                        <p class="feature-desc">采用优化的交易路由算法，实现秒级交易确认，比传统Swap快3-5倍。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3 class="feature-title">超低滑点</h3>
+                        <p class="feature-desc">深度流动性池和智能路径选择，确保您的交易以最优价格执行。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3 class="feature-title">安全可靠</h3>
+                        <p class="feature-desc">经过多重安全审计，所有交易都在链上验证，资金安全有保障。</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item " id="nav-ido">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-text">IDO广场</span>
+        </a>
+        <a href="list.html" class="nav-item" id="nav-my-projects">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">我的项目</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item active" id="nav-swap">
+            <span class="nav-icon">🔄</span>
+            <span class="nav-text">Swap</span>
+        </a>
+        <a href="user.html" class="nav-item" id="nav-governance">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </a>
+    </div>
+    
+    <!-- 设置模态框 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">交易设置</div>
+                <button class="close-btn" id="closeSettings"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <div class="settings-title">最大滑点容差</div>
+                    <div class="slippage-options">
+                        <div class="slippage-option" data-value="1">1%</div>
+                        <div class="slippage-option" data-value="5">5%</div>
+                        <div class="slippage-option active" data-value="10">10%</div>
+                        <div class="slippage-option" data-value="30">30%</div>
+                    </div>
+                    <input type="text" class="slippage-input" placeholder="自定义滑点" id="customSlippage">
+                    <div class="settings-desc" style="font-size:11px;color:#666;margin-top:0px;color:#4a2380">
+                        最大滑点容差，是可接受的最大滑点（但不会被三明治(夹子机器人)攻击）。假设用户设置50，某个代币滑点3%，则按照3%执行交易，某代币滑点60%，则自动取消交易
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <div class="settings-title">交易截止时间</div>
+                    <input type="text" class="deadline-input" placeholder="分钟" value="20" id="deadline">
+                </div>
+                
+                <!-- 批量开关 -->
+                <div class="settings-section">
+                    <div class="toggle-switch">
+                        <div class="toggle-label">批量交易</div>
+                        <div class="toggle" id="batchToggle">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="settings-desc" style="font-size:14px;color:#666;margin-top:5px;">
+                        开启后可设置将一笔交易拆分成 (1-100)笔
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- 代币选择模态框 -->
+    <div class="modal" id="tokenModal">
+        <div class="modal-content" style="min-height:200px">
+            <div class="modal-header">
+                <div class="modal-title">选择代币</div>
+                <button class="close-btn" id="closeTokenModal"><i class="fas fa-times"></i></button>
+            </div>
+            <!-- 代币信息预览 -->
+            
+            <div class="modal-body">
+                <input type="text" class="token-search" placeholder="搜索名称或粘贴合约地址" id="tokenSearch">
+                <div class="token-preview" id="tokenPreview">
+                    <div class="preview-title">代币信息预览</div>
+                    <input type="hidden" id="findTokenContract" value="0x0000000000000000000000000000000000000000"/>
+                    <div class="preview-item">
+                        <div class="preview-label">全称</div>
+                        <div class="preview-value" id="tokenSearch_tokenName">---</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">简称</div>
+                        <div class="preview-value" id="tokenSearch_tokenSymbol">---</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">精度</div>
+                        <div class="preview-value" id="tokenSearch_tokenDecimals">---</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">余额</div>
+                        <div class="preview-value" id="tokenSearch_tokenBalance">---</div>
+                    </div>
+    				<div class="" style="text-align: right;margin-top: 10px;">
+    					<button class="smallbtn" style="margin-left: 10px;" onclick="selectAndaddToken2System()">选择并保存</button>
+    				</div>
+                </div>
+                <div class="token-list" id="swapTokenList" style="min-height:180px">
+                    <!-- 代币列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 交易审核弹窗 -->
+  <div class="modal" id="auditModal">
+    <div class="modal-content">
+      <div class="loading-spinner"></div>
+      <div class="modal-title">正在审核交易</div>
+      <div style="padding: 3px 18px;">
+	  	<div class="modal-desc flex justify-between align-center"><span>审查交易是否成功</span>
+	  	<span>
+	  	    <i id="tokenSwapStatsSuccess" class="fas fa-check-circle success-icon" style="display:none;"></i>
+	  	    <i id="tokenSwapStatsFail" class="fas fa-times-circle fail-icon" style="display:none;"></i>
+	  	</span>
+	  	</div>
+	  	<div class="modal-desc flex justify-between align-center"><span>审查交易滑点</span><span class="slippage-num"><span id="tokenSwapSlippageRate">-</span>%</span></div>
+	  </div>
+    </div>
+  </div>
+  
+    <script>
+        const auditModal = document.getElementById('auditModal');
+        function openAuditModal() {
+            document.getElementById('tokenSwapStatsFail').style.display = 'none';
+            document.getElementById('tokenSwapStatsSuccess').style.display = 'none';
+            document.getElementById('tokenSwapSlippageRate').innerText = '-';
+            auditModal.classList.add('show');
+        }
+        function closeAuditModal() {
+            auditModal.classList.remove('show');
+        }
+        var BATCH_TRADE_ENABLED = false;
+        // 模态框元素
+        const settingsModal = document.getElementById('settingsModal');
+        const tokenModal = document.getElementById('tokenModal');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const closeSettings = document.getElementById('closeSettings');
+        const closeTokenModal = document.getElementById('closeTokenModal');
+        
+        const swapTokenList = document.getElementById('swapTokenList');
+        const tokenSearch = document.getElementById('tokenSearch');
+        const slippageOptions = document.querySelectorAll('.slippage-option');
+        const customSlippage = document.getElementById('customSlippage');
+        const deadlineInput = document.getElementById('deadline');
+        
+        const batchToggle = document.getElementById('batchToggle');
+        const batchRow = document.getElementById('batchRow');
+        const batchCount = document.getElementById('batchCount');
+        
+        const tokenPreview = document.getElementById('tokenPreview');
+        // 搜索代币
+        tokenSearch.addEventListener('input', () => {
+            tokenPreview.classList.remove('show');
+            const searchTerm = tokenSearch.value.toLowerCase();
+            if (searchTerm) {
+                if(searchTerm.length >= 42){
+                    console.log("合约地址搜索;"+searchTerm.length)
+                    findTokenDetail();
+                }else{
+                    renderTokensBySymbol(searchTerm);
+                }
+            } else {
+                renderAllTokens();
+            }
+        });
+    
+    
+        var customSlippageValue = 30;
+        // 滑点选项选择
+        slippageOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                slippageOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                customSlippageValue = option.dataset.value;
+                customSlippageSeting(customSlippageValue);
+                customSlippage.value = '';
+            });
+        });
+
+        // 自定义滑点输入
+        customSlippage.addEventListener('input', () => {
+            if (customSlippage.value) {
+                customSlippageValue = customSlippage.value;
+                if(customSlippageValue >= 50){
+                    customSlippage.value = 49.9;
+                    customSlippageValue = 49.9;
+                }
+                customSlippageValue = customSlippage.value;
+                slippageOptions.forEach(opt => opt.classList.remove('active'));
+            }
+        });
+        
+        customSlippage.addEventListener('change', () => {
+            customSlippageValue = customSlippage.value;
+            if (customSlippage.value) {
+                if(customSlippageValue < 0.3){
+                    customSlippage.value = 0.3;
+                    customSlippageValue = 0.3;
+                }
+                // swapTokenDataInit();
+                customSlippageSeting(customSlippageValue);
+                slippageOptions.forEach(opt => opt.classList.remove('active'));
+            }
+        });
+        
+        // 批量开关切换
+        batchToggle.addEventListener('click', () => {
+            
+            if (batchToggle.classList.contains('active')) {
+                batchToggle.classList.remove('active');
+                BATCH_TRADE_ENABLED = false;
+                batchRow.style.display = 'none';
+            } else {
+                batchToggle.classList.toggle('active');
+                batchRow.style.display = 'flex';
+                BATCH_TRADE_ENABLED = true;
+            }
+            
+        });
+        // 限制批量笔数输入范围
+        batchCount.addEventListener('input', () => {
+            let value = parseInt(batchCount.value);
+            if (value < 1) value = 1;
+            if (value > 100) value = 100;
+            batchCount.value = value;
+        });
+        batchCount.addEventListener('change', () => {
+            let value = parseInt(batchCount.value);
+            if (isNaN(value)) value = 1;
+            if (value < 1) value = 1;
+            if (value > 100) value = 100;
+            batchCount.value = value;
+        });
+        // 打开设置模态框
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+
+        // 关闭设置模态框
+        closeSettings.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        // 关闭代币选择模态框
+        closeTokenModal.addEventListener('click', () => {
+            tokenModal.style.display = 'none';
+        });
+        // 点击模态框外部关闭模态框
+        window.addEventListener('click', (event) => {
+            if (event.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+            if (event.target === tokenModal) {
+                tokenModal.style.display = 'none';
+            }
+            if (event.target === auditModal) {
+                auditModal.classList.remove('show');
+            }
+        });
+        
+        var showSettingModal = function(){
+            settingsModal.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/BigInt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/SwapTokenList.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappSwapRouterChoose.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="js/DappSwapTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/DappSwapRouterMain.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    
+    // 选择代币
+    function selectToken(contractAddress) {
+        const token = tokenListObject[contractAddress];
+        console.log(token)
+        if (currentTokenType === 'from') {
+            $("#fromTokenBtn").html(`
+                <div class="token-icon"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                ${token.symbol}
+                <span><i class="fas fa-chevron-down"></i></span>
+            `)
+            $("#fromTokenContract").val(contractAddress);
+            localStorage.setItem('fromTokenContract', contractAddress);
+            $(".fromTokenSymbol").text(token.symbol);
+        } else {
+            $("#toTokenBtn").html(
+                `<div class="token-icon"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                ${token.symbol}
+                <span><i class="fas fa-chevron-down"></i></span>`    
+            )
+            $("#toTokenContract").val(contractAddress);
+            localStorage.setItem('toTokenContract', contractAddress);
+            $(".toTokenSymbol").text(token.symbol);
+        }
+        $("#fromTokenInput").val('');
+        $("#toTokenInput").val('');
+        tokenModal.style.display = 'none';
+        
+        swapTokenDataInit();
+    }
+    
+    function selectTokenBySymbol(contractAddress, tokenSymbol) {
+        if (currentTokenType === 'from') {
+            $("#fromTokenBtn").html(`
+                <div class="token-icon"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                ${tokenSymbol}
+                <span><i class="fas fa-chevron-down"></i></span>
+            `)
+            $("#fromTokenContract").val(contractAddress);
+            localStorage.setItem('fromTokenContract', contractAddress);
+            $(".fromTokenSymbol").text(tokenSymbol);
+        } else {
+            $("#toTokenBtn").html(
+                `<div class="token-icon"><img class="" src="img/token/${contractAddress}.png" onerror="this.src='./img/none.png';"></div>
+                ${tokenSymbol}
+                <span><i class="fas fa-chevron-down"></i></span>`    
+            )
+            $("#toTokenContract").val(contractAddress);
+            localStorage.setItem('toTokenContract', contractAddress);
+            $(".toTokenSymbol").text(tokenSymbol);
+        }
+        $("#fromTokenInput").val('');
+         $("#toTokenInput").val('');
+        tokenModal.style.display = 'none';
+        
+        swapTokenDataInit();
+    }
+    
+    var currentTokenType = 'from';
+    var fromTokenSelect = function(){
+        $("#tokenSearch").val('');
+        document.getElementById('tokenPreview').classList.remove('show');
+        currentTokenType = 'from';
+        tokenModal.style.display = 'flex';
+        renderAllTokens();
+    }
+    var toTokenSelect = function(){
+        $("#tokenSearch").val('');
+        document.getElementById('tokenPreview').classList.remove('show');
+        currentTokenType = 'to';
+        tokenModal.style.display = 'flex';
+        renderAllTokens();
+    }
+    
+    var changeTokensDirection = function(){
+        // 交换输入和输出代币
+            const fromTokenSymbol = $("#fromTokenBtn").text().trim();
+            const toTokenSymbol = $("#toTokenBtn").text().trim();
+            var fromTokenContract = $("#fromTokenContract").val();
+            var toTokenContract = $("#toTokenContract").val();
+            $("#fromTokenContract").val(toTokenContract);
+            $("#toTokenContract").val(fromTokenContract);
+            localStorage.setItem('fromTokenContract', toTokenContract);
+            localStorage.setItem('toTokenContract', fromTokenContract);
+            $(".fromTokenSymbol").text(toTokenSymbol);
+            $(".toTokenSymbol").text(fromTokenSymbol);
+            $("#fromTokenBtn").html(`
+                <div class="token-icon"><img class="" src="img/token/${toTokenContract}.png" onerror="this.src='./img/none.png';"></div>
+                ${toTokenSymbol}
+                <span><i class="fas fa-chevron-down"></i></span>
+            `);
+            $("#toTokenBtn").html(`
+                <div class="token-icon"><img class="" src="img/token/${fromTokenContract}.png" onerror="this.src='./img/none.png';"></div>
+                ${fromTokenSymbol}
+                <span><i class="fas fa-chevron-down"></i></span>
+            `);
+            $("#fromTokenInput").val('');
+            $("#toTokenInput").val('');
+            
+            swapTokenDataInit();
+    }
+    
+    
+    //滑点设置
+    var customSlippageSeting = function(_customSlippageValue){
+        console.log(_customSlippageValue)
+        $("#customSlippageValue").text(_customSlippageValue);
+        localStorage.setItem('customSlippageValue', _customSlippageValue);
+    }
+    var customSlippageInit = function(){
+        customSlippageValue = localStorage.getItem('customSlippageValue');
+        if(!customSlippageValue){customSlippageValue = 30;}
+        var optionsNoSelect = true;
+        slippageOptions.forEach(function(opt){
+            if(opt.dataset.value == customSlippageValue){
+                opt.classList.add('active')
+                optionsNoSelect = false;
+            }else{
+                opt.classList.remove('active')
+            }
+        });
+        if(optionsNoSelect){
+            customSlippage.value = customSlippageValue;
+        }
+        customSlippageSeting(customSlippageValue);
+    } 
+    customSlippageInit();
+    
+    
+    //默认token加载
+    var swapTokensInit = function(){
+        // 交换输入和输出代币
+        var fromTokenContract = localStorage.getItem('fromTokenContract');
+        var toTokenContract = localStorage.getItem('toTokenContract');
+        if(fromTokenContract && toTokenContract){
+            var fromToken = tokenListObject[fromTokenContract];
+            var toToken = tokenListObject[toTokenContract];
+            if(fromToken && fromToken.symbol){}else{fromToken = defaultTokens[BNBCONTRACT];fromTokenContract=BNBCONTRACT;}
+            if(toToken && toToken.symbol){}else{toToken = defaultTokens[WBNBCONTRACT];toTokenContract=WBNBCONTRACT;}
+            $("#fromTokenContract").val(fromTokenContract);
+            $("#toTokenContract").val(toTokenContract);
+            $("#fromTokenBtn").html(`
+                <div class="token-icon"><img class="" src="img/token/${fromTokenContract}.png" onerror="this.src='./img/none.png';"></div>
+                ${fromToken.symbol}
+                <span><i class="fas fa-chevron-down"></i></span>
+            `);
+            $("#toTokenBtn").html(`
+                <div class="token-icon"><img class="" src="img/token/${toTokenContract}.png" onerror="this.src='./img/none.png';"></div>
+                ${toToken.symbol}
+                <span><i class="fas fa-chevron-down"></i></span>
+            `);
+            $(".fromTokenSymbol").text(fromToken.symbol);
+            $(".toTokenSymbol").text(toToken.symbol);
+            swapTokenDataInit();
+        }
+    }
+    swapTokensInit();
+    
+    
+    
+    var selectAndaddToken2System = function() {
+        const findTokenContract = document.getElementById('findTokenContract').value.toLowerCase().trim();
+        if (!findTokenContract) return;
+        // 检查是否已存在
+        if (tokenListObject[findTokenContract]) {
+            
+        }else{
+            var fullName = document.getElementById('tokenSearch_tokenName').textContent;
+            var shortName = document.getElementById('tokenSearch_tokenSymbol').textContent;
+            var decimals = document.getElementById('tokenSearch_tokenDecimals').textContent;
+            
+            userAddToken(findTokenContract,fullName,shortName,decimals);
+            tishi('保存成功');
+        }
+        document.getElementById('tokenPreview').classList.remove('show');
+        $("#tokenSearch").val('');
+        selectToken(findTokenContract);
+    }
+    
+    var updateReciverAmount = function(){
+        var fromTokenAmount = $("#fromTokenInput").val();
+        if(fromTokenAmount && fromTokenAmount*1.0 > 0){
+            swapTokenAmountDataInit(fromTokenAmount, 0);
+        }
+        updateReciverDelayed();
+    }
+    
+    var updateReciverDelayed = function(){
+        console.log("updateReciverDelayed")
+        setTimeout(function(){
+            updateReciverAmount();
+        }, 1000);
+    }
+    updateReciverDelayed();
+</script>

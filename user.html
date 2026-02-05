@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BPM IDO平台</title>
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            padding-bottom: 60px;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(74, 35, 128, 0.2);
+        }
+        
+        .page {
+            padding: 15px;
+            min-height: calc(100vh - 120px);
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: #6c2bd9;
+            font-weight: bold;
+        }
+        
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* 钱包卡片 */
+        .wallet-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(74, 35, 128, 0.05);
+        }
+        
+        /* 所有板块标题统一样式：有下划线 + 有图标 */
+        .section-header {
+            color: #4a2380;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f5f3ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-header-icon {
+            font-size: 18px;
+            color: #6c2bd9;
+        }
+        
+        .token-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .token-item, .referrer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f5f3ff;
+            border-radius: 8px;
+        }
+        
+        .token-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .token-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #d5d3de, #e5e3ee);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .token-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a2380;
+        }
+        
+        .token-balance {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        /* 推荐人样式 */
+        .referrer-item {
+            cursor: pointer;
+        }
+        
+        .referrer-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a2380;
+        }
+        
+        .referrer-address {
+            font-size: 14px;
+            color: #6c2bd9;
+            font-weight: 500;
+        }
+        
+        /* 说明文字样式 */
+        .info-text {
+            font-size: 12px;
+            color: #6c2bd9;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0d6ff;
+            line-height: 1.5;
+        }
+        
+        /* 团队业绩统计 */
+        .stats-section {
+            margin-top: 20px;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(74, 35, 128, 0.05);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .stat-item {
+            background: #f5f3ff;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            padding-top:6px;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a2380;
+            padding-top:6px;
+        }
+        
+        /* 直推列表 */
+        .team-section {
+            margin-top: 20px;
+        }
+        
+        .team-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(74, 35, 128, 0.05);
+        }
+        
+        .team-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        /* 优化后的直推项样式 */
+        .team-item {
+            background: #f5f3ff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(74, 35, 128, 0.06);
+        }
+        
+        .team-address-bar {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .team-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0;
+        }
+        
+        .team-stat {
+            padding: 12px;
+            text-align: center;
+            border-right: 1px solid #e0d6ff;
+        }
+        
+        .team-stat:last-child {
+            border-right: none;
+        }
+        
+        .team-stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .team-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a2380;
+        }
+        
+        /* ------------------------------ */
+        /* 弹窗样式 */
+        /* ------------------------------ */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(6px);
+        }
+        
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 380px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(74, 35, 128, 0.25);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4a2380;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-title-icon {
+            font-size: 22px;
+            color: #6c2bd9;
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f3ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: #ebe5ff;
+        }
+        
+        .modal-body {
+            padding: 10px 20px 20px;
+        }
+        
+        .modal-desc {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding: 12px;
+            background: #faf6ff;
+            border-radius: 12px;
+            border: 1px solid #ede7ff;
+        }
+        
+        .modal-desc-icon {
+            font-size: 18px;
+            color: #6c2bd9;
+            margin-top: 2px;
+        }
+        
+        .modal-desc-text {
+            font-size: 13px;
+            color: #5a4b81;
+            line-height: 1.5;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0d6ff;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            background: #faf8ff;
+            transition: all 0.3s;
+        }
+        
+        .modal-input:focus {
+            border-color: #6c2bd9;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(108, 43, 217, 0.1);
+        }
+        
+        .modal-btn {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(108, 43, 217, 0.25);
+        }
+		/* 空列表提示 */
+		.empty-tip {
+		    flex: 1;
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    justify-content: center;
+		    text-align: center;
+		    padding: 20px;
+		    color: #999;
+		    font-size: 14px;
+		}
+		.empty-tip i {
+		    font-size: 60px;
+		    margin-bottom: 15px;
+		    display: block;
+		    color: #e0e0e0;
+		}
+		.empty-tip p {
+		    margin-bottom: 10px;
+		}
+    </style>
+</head>
+<body>
+    <div class="header1 flex justify-between align-center" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<img id="logjs" src="img/logo.png" alt="" style="display: block;width: 40px;">
+    				<span class=" mdui-typo-subheading" style="font-weight: 800;padding-left: 2px;">BPMWEB3</span>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    		    
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+    </div>
+    
+    <div id="page2" class="page">
+        <!-- 钱包卡片 -->
+        <div class="wallet-card">
+            <!-- 第一个板块标题：统一有下划线 + 图标 -->
+            <div class="section-header">
+                <span class="section-header-icon">💰</span>
+                资产与推荐人信息
+            </div>
+            
+            <div class="token-list">
+                <!-- BNB -->
+                <div class="token-item">
+                    <div class="token-left">
+                        <div class="token-icon" style="border-radius: 50%;"><img id="logjs" src="img/token/bnb.png" alt="" style="display: block;width: 100%;"></div>
+                        <div class="token-name">BNB</div>
+                    </div>
+                    <div id="haveBnbAmount" class="token-balance">0.0</div>
+                </div>
+                
+                <!-- USDT -->
+                <div class="token-item">
+                    <div class="token-left">
+                        <div class="token-icon" style="border-radius: 50%;"><img id="logjs" src="img/token/usdt.png" alt="" style="display: block;width: 100%;"></div>
+                        <div class="token-name">USDT</div>
+                    </div>
+                    <div id="haveUsdtAmount" class="token-balance">0.0</div>
+                </div>
+                
+                <!-- FROG -->
+                <div class="token-item">
+                    <div class="token-left">
+                        <div class="token-icon" style="border-radius: 50%;"><img id="logjs" src="img/frog.jpg" alt="" style="border-radius: 50%;width: 100%;"></div>
+                        <div class="token-name">FROG</div>
+                    </div>
+                    <div id="haveFrogAmount" class="token-balance">0.0</div>
+                </div>
+                
+                <!-- 积分 -->
+                <div class="token-item">
+                    <div class="token-left">
+                        <!-- 已替换为更合适的积分图标 📌 -->
+                        <div class="token-icon">📌</div>
+                        <div class="token-name">积分</div>
+                    </div>
+                    <div id="haveDouAmount" class="token-balance">0.0</div>
+                </div>
+                
+                <!-- 推荐人 -->
+                <div class="referrer-item" id="referrerItem">
+                    <div class="token-left">
+                        <div class="token-icon">👤</div>
+                        <div class="referrer-label">推荐人</div>
+                    </div>
+                    <div onclick="openShareWindow()" class="referrer-address" id="referrerAddress">0x1234...abcd</div>
+                </div>
+            </div>
+            
+            <!-- 最上面板块底部说明 -->
+            <div class="info-text">
+                参与平台私募可获得等额积分（100U=100积分，50U=50积分）。积分可用于抵扣发射代币，每次扣减10000积分。
+            </div>
+        </div>
+        
+        <!-- 团队业绩统计 -->
+        <div class="stats-section">
+            <div class="stats-card">
+                <!-- 下面板块标题：统一有下划线 + 图标 -->
+                <div class="section-header">
+                    <span class="section-header-icon">📊</span>
+                    团队业绩统计
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div id="userShareDepositTotal" class="stat-value">0</div>
+                        <div class="stat-label">团队业绩(USDT)</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div id="userShareSun1Deposit" class="stat-value">0</div>
+                        <div class="stat-label">直推业绩(USDT)</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div id="userShareDepositMaxArea" class="stat-value">0</div>
+                        <div class="stat-label">大区业绩(USDT)</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div id="userShareDepositMinArea" class="stat-value">0</div>
+                        <div class="stat-label">小区业绩(USDT)</div>
+                    </div>
+                </div>
+                
+                <!-- 团队业绩统计说明 -->
+                <div class="info-text">
+                    小区业绩达到10万U可免费发射1个代币，20万U可发射2个，以此类推。
+                </div>
+            </div>
+        </div>
+        
+        <!-- 直推列表 -->
+        <div class="team-section">
+            <div class="team-card">
+                <!-- 下面板块标题：统一有下划线 + 图标 -->
+                <div class="section-header flex justify-between align-center" style="">
+                    <div class="">
+                        <span class="section-header-icon">👥</span>
+                        直推列表
+                    </div>
+                    <div onclick="copyShareLink()" class="copyBtn" style="font-weight: 500;font-size: 15px;padding-right:1px">
+                        推广链接 <i class="mdui-icon material-icons" style="font-size: 15px;">&#xe14d;</i>
+                    </div>
+                </div>
+                
+                <div class="team-list" id="shareSunListContent">
+                    <!-- 直推1 -->
+					<div class="empty-tip">
+					    <i>🔍</i>
+					    <p>暂无分享的地址列表</p>
+					    <p>点击右上角复制分享链接，发送给好友</p>
+					</div>
+					
+                    <!--<div class="team-item">-->
+                    <!--    <div class="team-address-bar">0x5678...wxyz</div>-->
+                    <!--    <div class="team-stats">-->
+                    <!--        <div class="team-stat">-->
+                    <!--            <div class="team-stat-label">直推业绩</div>-->
+                    <!--            <div class="team-stat-value">12,850 USDT</div>-->
+                    <!--        </div>-->
+                    <!--        <div class="team-stat">-->
+                    <!--            <div class="team-stat-label">团队业绩</div>-->
+                    <!--            <div class="team-stat-value">46,280 USDT</div>-->
+                    <!--        </div>-->
+                    <!--    </div>-->
+                    <!--</div>-->
+                    
+                    <!-- 直推2 -->
+                    <!--<div class="team-item">-->
+                    <!--    <div class="team-address-bar">0x9abc...def0</div>-->
+                    <!--    <div class="team-stats">-->
+                    <!--        <div class="team-stat">-->
+                    <!--            <div class="team-stat-label">直推业绩</div>-->
+                    <!--            <div class="team-stat-value">8,620 USDT</div>-->
+                    <!--        </div>-->
+                    <!--        <div class="team-stat">-->
+                    <!--            <div class="team-stat-label">团队业绩</div>-->
+                    <!--            <div class="team-stat-value">21,540 USDT</div>-->
+                    <!--        </div>-->
+                    <!--    </div>-->
+                    <!--</div>-->
+                    
+                    <!-- 直推3 -->
+                    <!--<div class="team-item">-->
+                    <!--    <div class="team-address-bar">0x1122...3344</div>-->
+                    <!--    <div class="team-stats">-->
+                    <!--        <div class="team-stat">-->
+                    <!--            <div class="team-stat-label">直推业绩</div>-->
+                    <!--            <div class="team-stat-value">5,980 USDT</div>-->
+                    <!--        </div>-->
+                    <!--        <div class="team-stat">-->
+                    <!--            <div class="team-stat-label">团队业绩</div>-->
+                    <!--            <div class="team-stat-value">14,360 USDT</div>-->
+                    <!--        </div>-->
+                    <!--    </div>-->
+                    <!--</div>-->
+                
+				</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item " id="nav-ido">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-text">IDO广场</span>
+        </a>
+        <a href="list.html" class="nav-item" id="nav-my-projects">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">我的项目</span>
+        </a>
+        <a href="swap.html" class="nav-item" id="nav-swap">
+            <span class="nav-icon">🔄</span>
+            <span class="nav-text">Swap</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item active" id="nav-swap">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </a>
+    </div>
+    
+    <!-- 绑定推荐人弹窗 -->
+    <div class="modal" id="referrerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">🔗</span>
+                    绑定推荐人
+                </div>
+                <div class="modal-close" onclick="closeShareWindow()" id="modalCloseBtn">✕</div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-desc">
+                    <span class="modal-desc-icon">ℹ️</span>
+                    <div class="modal-desc-text">
+                        全局只需绑定一次推荐人。参与私募后，上级可获得提前购买额度，双方均可获得相应奖励。
+                    </div>
+                </div>
+                
+                <input type="text" class="modal-input" id="parentAddress" placeholder="请输入推荐人地址">
+                <button class="modal-btn" onclick="shareShipCheck()">确认绑定</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+<script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/mdui.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/web3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/CreateTokenTool.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/create/CreateTokenShareMain.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var $ = mdui.$;
+    
+    var openShareWindow = function(){
+        $("#referrerModal").addClass("active");
+    }
+    var closeShareWindow = function(){
+        $("#referrerModal").removeClass("active");
+    }
+</script>
