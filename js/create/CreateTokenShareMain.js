@@ -109,7 +109,7 @@ var userPageDataInit = function(){
 	
 }
 
-var recordEle = "<div class="team-item"><div class="team-address-bar">userAddress</div><div class="team-stats"><div class="team-stat"><div class="team-stat-label">直推业绩</div><div class="team-stat-value">shareAmount USDT</div></div><div class="team-stat"><div class="team-stat-label">团队业绩</div><div class="team-stat-value">teamAmount USDT</div></div></div></div>";
+var recordEle = "<div class='team-item'><div class='team-address-bar'>userAddress</div><div class='team-stats'><div class='team-stat'><div class='team-stat-label'>直推业绩</div><div class='team-stat-value'>shareAmount USDT</div></div><div class='team-stat'><div class='team-stat-label'>团队业绩</div><div class='team-stat-value'>teamAmount USDT</div></div></div></div>";
 var copyAddress = function(){
 	if(selectAddress){
 		copycontext(selectAddress);
@@ -182,5 +182,6 @@ var shareShipCheck = function(){
 var pageDataInit = function(){
 	userPageDataInit();
 }
+
 
 
