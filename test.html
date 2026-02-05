@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传图片到GitHub仓库</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+        
+        .upload-area:hover {
+            border-color: #2980b9;
+            background-color: #f0f7ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #2ecc71;
+            background-color: #e8f6f3;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f1f8ff;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .links {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .link-btn {
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .view-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .download-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .link-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .instructions h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📤 上传图片到GitHub</h1>
+        <p class="subtitle">安全上传图片到你的 tokenimage 仓库</p>
+        
+        <!-- 文件拖放区域 -->
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <p><strong>点击选择文件 或 拖拽文件到此处</strong></p>
+            <p>支持 JPG, PNG, GIF, WebP, SVG (最大 2MB)</p>
+            <input type="file" id="fileInput" class="file-input" accept="image/*">
+            <div id="fileInfo" class="file-info"></div>
+        </div>
+        
+        <!-- 上传表单 -->
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="pathInput">保存路径（可选）</label>
+                <input type="text" id="pathInput" placeholder="例如: images/2024 或留空上传到根目录">
+            </div>
+            
+            <button type="submit" id="uploadBtn" class="btn">
+                <span>🚀 开始上传</span>
+            </button>
+        </form>
+        
+        <!-- 结果显示区域 -->
+        <div id="result" class="result"></div>
+        
+        <!-- 使用说明 -->
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ol>
+                <li>点击上方区域选择图片，或直接拖拽图片文件</li>
+                <li>可选：指定保存路径（如 "images" 表示保存到 images 文件夹）</li>
+                <li>点击"开始上传"按钮</li>
+                <li>上传成功后，可使用提供的链接查看或下载图片</li>
+            </ol>
+            <p><strong>注意：</strong>文件将上传到你的GitHub仓库 <code>tokenimage</code></p>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const pathInput = document.getElementById('pathInput');
+        const resultDiv = document.getElementById('result');
+        
+        // 当前选中的文件
+        let currentFile = null;
+        
+        // 1. 点击上传区域触发文件选择
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // 2. 文件选择变化事件
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        // 3. 拖放功能
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // 4. 处理文件选择
+        function handleFileSelect(file) {
+            // 验证文件类型
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+            
+            if (!allowedTypes.includes(file.type)) {
+                showError('请选择图片文件 (JPG, PNG, GIF, WebP, SVG)');
+                return;
+            }
+            
+            // 验证文件大小 (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showError('文件大小超过2MB限制');
+                return;
+            }
+            
+            currentFile = file;
+            
+            // 显示文件信息
+            fileInfo.innerHTML = `
+                <strong>已选择文件:</strong> ${file.name}<br>
+                <strong>文件类型:</strong> ${file.type}<br>
+                <strong>文件大小:</strong> ${(file.size / 1024).toFixed(2)} KB
+            `;
+            
+            // 自动填充文件名（不含扩展名）作为路径提示
+            const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+            if (!pathInput.value) {
+                pathInput.placeholder = `例如: images/${nameWithoutExt}`;
+            }
+            
+            // 启用上传按钮
+            uploadBtn.disabled = false;
+        }
+        
+        // 5. 表单提交事件（上传文件）
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentFile) {
+                showError('请先选择文件');
+                return;
+            }
+            
+            // 禁用按钮并显示加载状态
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<div class="loading-spinner"></div><span>上传中...</span>';
+            
+            try {
+                // 读取文件为Base64
+                const base64String = await readFileAsBase64(currentFile);
+                
+                // 准备上传数据
+                const uploadData = {
+                    filename: currentFile.name,
+                    content: base64String.split(',')[1], // 移除 data:image/... 前缀
+                    path: pathInput.value.trim() || undefined
+                };
+                
+                // 重要：将 YOUR_VERCEL_APP_URL 替换为你的Vercel应用地址
+                const API_URL = 'https://YOUR_VERCEL_APP_URL/api/upload';
+                
+                // 发送到Vercel API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(uploadData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showSuccess(result);
+                } else {
+                    showError(result.error || result.details || '上传失败');
+                }
+                
+            } catch (error) {
+                console.error('上传错误:', error);
+                showError(`网络错误: ${error.message}`);
+            } finally {
+                // 恢复按钮状态
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<span>🚀 开始上传</span>';
+            }
+        });
+        
+        // 6. 读取文件为Base64
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 7. 显示成功结果
+        function showSuccess(result) {
+            resultDiv.className = 'result success';
+            resultDiv.style.display = 'block';
+            
+            const actionText = result.action === 'updated' ? '更新' : '上传';
+          
+            resultDiv.innerHTML = `
+                <h3>✅ 文件${actionText}成功！</h3>
+                <p><strong>文件:</strong> ${result.data.filename}</p>
+                <p><strong>路径:</strong> ${result.data.path}</p>
+                <p><em>${result.action === 'updated' ? '⚠️ 已覆盖同名文件' : '✅ 新文件已创建'}</em></p>
+                
+                <div class="links">
+                    <a href="${result.data.htmlUrl}" target="_blank" class="link-btn view-btn">
+                        👁️ 在GitHub查看
+                    </a>
+                    <a href="${result.data.downloadUrl}" target="_blank" class="link-btn download-btn">
+                        ⬇️ 下载文件
+                    </a>
+                </div>
+                
+                <p style="margin-top:15px; font-size:13px;">
+                    <strong>SHA:</strong> <code style="background:#fff;padding:2px 5px;border-radius:3px;">${result.data.sha.substring(0, 12)}...</code>
+                </p>
+            `;
+            
+            // 重置表单
+            currentFile = null;
+            fileInput.value = '';
+            fileInfo.innerHTML = '';
+            pathInput.value = '';
+        }
+        
+        // 8. 显示错误
+        function showError(message) {
+            resultDiv.className = 'result error';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h3>❌ 上传失败</h3>
+                <p>${message}</p>
+            `;
+            
+            // 3秒后自动隐藏错误
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 初始状态：禁用上传按钮
+        uploadBtn.disabled = true;
+    </script>
+</body>
+</html>
