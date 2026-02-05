@@ -19,7 +19,7 @@ var haveUsdtAmount = 0;
 var haveBnbAmount = 0;
 var haveFrogAmount = 0;
 var haveParentAddress = false;
-var baseUrl = "http://bpmweb3.com/swap/user.html?ref=";
+var baseUrl = "https://swap4token.github.io/user.html?ref=";
 var userPageDataInit = function(){
 	$('#myshareLink').text(baseUrl+selectAddress);
 	controlContractInstance.methods.getUserData(selectAddress).call({from:selectAddress,gasPrice: '0'}).then(function(res){
@@ -182,4 +182,5 @@ var shareShipCheck = function(){
 var pageDataInit = function(){
 	userPageDataInit();
 }
+
 
