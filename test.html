@@ -364,7 +364,7 @@
                 
                 // 准备上传数据
                 const uploadData = {
-                    filename: pathInput,
+                    filename: pathInput.value,
                     content: base64String.split(',')[1],
                     path: ''
                 };
@@ -436,7 +436,7 @@
             currentFile = null;
             fileInput.value = '';
             fileInfo.innerHTML = '';
-            pathInput.value = '';
+            .value = '';
         }
         
         // 8. 显示错误
