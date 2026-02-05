@@ -382,7 +382,7 @@
                 });
                 
                 const result = await response.json();
-                
+                console.log(result)
                 if (response.ok && result.success) {
                     showSuccess(result);
                 } else {
