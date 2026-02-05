@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>IDO项目管理</title>
+    <link href="css/mdui.min.css" rel="stylesheet">
+	<link href="css/me.css" rel="stylesheet">
+	
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f3ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a2380;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* 一行两列布局 */
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            font-family: monospace;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #6c2bd9;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Logo样式优化 - 与输入框平齐 */
+        .logo-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .logo-input-wrap {
+            flex: 1;
+        }
+        .logo-display {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            flex-shrink: 0;
+            margin-top: 20px;
+        }
+        .logo-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4a2380, #6c2bd9);
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        .btn-danger {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        .btn-full {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .btn-center {
+            display: block;
+            margin: 0 auto;
+            width: 120px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-running {
+            background-color: #e8f4fd;
+            color: #4299e1;
+        }
+        .status-ended {
+            background-color: #f0f0f0;
+            color: #999;
+        }
+
+        /* 数据统计 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stats-item {
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stats-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .stats-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4a2380;
+        }
+
+        /* 管理员信息样式 */
+        .admin-info {
+            padding: 12px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .admin-address {
+            font-family: monospace;
+            font-size: 14px;
+            color: #4a2380;
+            word-break: break-all;
+        }
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* 小字说明 */
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* 交易税说明 */
+        .tax-info {
+            padding: 12px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .tax-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4a2380;
+            margin-bottom: 8px;
+        }
+        .tax-list {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header1 flex justify-between align-center" style="background-color: #fff;color: #4a2380;padding: 12px;box-shadow: 0 2px 10px rgba(108, 43, 217, 0.15);">
+    		<div class="flex justify-start align-center" style="">
+    			<div class="flex justify-start align-center">
+    				<img id="logjs" src="img/logo.png" alt="" style="display: block;width: 40px;">
+    				<span class=" mdui-typo-subheading" style="font-weight: 800;padding-left: 2px;">BPMWEB3</span>
+    			</div>
+    		</div>
+    		<div class="flex justify-end align-center">
+    			<span onclick="copyAddress()"
+    				class="copyBtn btnbg mdui-p-a-1 mdui-color-amber1 mdui-p-x-2 mdui-m-r-1"
+    				style="font-weight: 550;border-radius: 8px;border: rgba(108, 43, 217, 0.1) 1px solid;">
+    			    🔐<span id="selectAddress" style="padding-left: 2px;">……</span>
+    			</span>
+    			<!-- <div id="playBtn"  class="mdui-color-amber mdui-ripple cuIconfont-spin" onclick="changeStats()" style="float: right;border-radius: 50%;width: 30px;height: 30px;text-align: center;line-height: 30px;"><i class="mdui-icon material-icons mdui-text-color-white">music_note</i></div> -->
+    		</div>
+    </div>
+    
+    <div class="container">
+        <!-- 项目基础信息 -->
+        <div class="card">
+            <div class="card-title">
+                <i>📋</i> 项目基础信息
+                <span class="status-tag status-running" style="margin-left: auto;"></span>
+            </div>
+            
+            
+            <div class="form-group">
+                <label onclick="copyContract()" class="form-label copyBtn">合约地址 <i class="mdui-icon material-icons" style="font-size: 14px;">&#xe14d;</i></label>
+                <input id="tokenContract" type="text" class="form-input" style="font-size: 12px;" value="" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">项目名称</label>
+                <input id="tokenName" type="text" class="form-input" value="" readonly>
+            </div>
+            <!-- 代币符号 + 发行量 同行 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">代币符号</label>
+                    <input id="tokenSymbol" type="text" class="form-input" value="" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">发行量</label>
+                    <input id="tokenTotal" type="number" class="form-input" value="" readonly>
+                </div>
+            </div>
+            
+            <!-- 项目描述在上，Logo在下 -->
+            <div class="form-group">
+                <label class="form-label">项目描述</label>
+                <textarea id="tokenContext" class="form-textarea" readonly></textarea>
+            </div>
+            
+            <div class="logo-group">
+                <div class="logo-input-wrap">
+                    <label class="form-label">代币Logo</label>
+                    <input type="file" class="form-input" id="tokenLogoUpload" accept="image/*">
+                </div>
+                <div class="logo-display" id="tokenLogoDisplay">
+                    <img id="tokenImage" src="img/none.png"  onerror="this.src='./img/none.png'" alt="代币Logo">
+                </div>
+            </div>
+        </div>
+
+        <!-- 筹资数据统计 -->
+        <div class="card">
+            <div class="card-title">
+                <i>📊</i> 筹资数据统计
+            </div>
+            <div class="stats-grid">
+                <div class="stats-item">
+                    <div class="stats-label">单份IDO额度（USDT）</div>
+                    <div id="tokenOneAmount" class="stats-value">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">硬顶份数</div>
+                    <div id="tokenMaxNumber" class="stats-value">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">软顶份数</div>
+                    <div id="tokenMinNumber" class="stats-value">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">已筹份数</div>
+                    <div id="tokenOverNumber" class="stats-value">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">剩余代币</div>
+                    <div id="remianTokenTotal" class="stats-value">0</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-label">参与人数</div>
+                    <div id="tokenOverNumber_" class="stats-value">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间配置修改 -->
+        <div class="card">
+            <div class="card-title">
+                <i>⏰</i> 时间配置修改
+            </div>
+            <div class="form-group">
+                <label class="form-label">当前IDO开始时间</label>
+                <input id="tokenIdoStartTime" type="datetime-local" step="1" class="form-input" value="2026-01-01T09:00" style="background:#eee" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">当前IDO结束时间</label>
+                <input id="tokenIdoEndTime" type="datetime-local" step="1" class="form-input" value="2026-01-10T18:00" style="background:#eee" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">修改IDO开始时间（IDO开始前可修改1）</label>
+                <input id="tokenIdoNewStartTime" type="text" step="1" class="form-input" style="background:#eee" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">设置项目开盘时间（仅IDO结束后可设置）</label>
+                <input id="tokenIdoSwapTime" type="text" step="1" class="form-input" style="background:#eee" readonly>
+            </div>
+            <button class="btn btn-primary btn-full" id="updateTimeBtn" onclick="changeTokenTime()">保存时间修改</button>
+            <div class="help-text">
+                说明：IDO结束时间不可修改，将以自然结束时间或软顶达标后由管理员手动结束为准。
+                IDO结束时间默认为IDO开始后72小时。
+                项目开盘时间默认为IDO结束后24小时。
+            </div>
+        </div>
+
+        <!-- 交易税板块 -->
+        <div class="card">
+            <div class="card-title">
+                <i>📉</i> 交易税设置
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">买税</label>
+                    <input id="tokenBuyFee" type="number" class="form-input" value="3" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">卖税</label>
+                    <input id="tokenSellFee" type="number" class="form-input" value="3" readonly>
+                </div>
+            </div>
+
+            <div class="tax-info">
+                <div class="tax-title">税率说明</div>
+                <div class="tax-list">
+                    <div><strong>买税：</strong></div>
+                    <div>• 开盘前5分钟：10%</div>
+                    <div>• 开盘5–10分钟：5%</div>
+                    <div>• 开盘10分钟后：3%</div>
+                    <br>
+                    <div><strong>卖税：</strong></div>
+                    <div>• 开盘前5分钟：15%</div>
+                    <div>• 开盘5–30分钟：10%</div>
+                    <div>• 开盘30分钟–1小时：5%</div>
+                    <div>• 开盘1小时后：3%</div>
+                    <br>
+                    <div><strong>所有的税点转化为USDT，50%用于LP分红，50%用于IDO人员保本储备</strong></div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 白名单管理 -->
+        <div class="card">
+            <div class="card-title">
+                <i>🔑</i> 白名单管理
+            </div>
+            <div class="form-group">
+                <label class="form-label">钱包地址</label>
+                <input type="text" class="form-input" placeholder="输入0x开头的钱包地址" id="whitelistAddress">
+            </div>
+            <div class="admin-actions">
+                <button class="btn btn-primary btn-full" onclick="setExcludedFromFeesCheck(true)">添加白名单</button>
+                <button class="btn btn-danger btn-full" onclick="setExcludedFromFeesCheck(false)">取消白名单</button>
+            </div>
+        </div>
+
+        <!-- 代币管理员及权限管理 -->
+        <div class="card">
+            <div class="card-title">
+                <i>👑</i> 代币管理员权限
+            </div>
+            <div class="admin-info">
+                <div class="form-label">当前管理员地址</div>
+                <div id="oldAdminAddress" class="admin-address">0x1234567890abcdef1234567890abcdef12345678</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">转移权限至新地址</label>
+                <input type="text" class="form-input" placeholder="输入新管理员钱包地址" id="newAdminAddress">
+            </div>
+            <div class="admin-actions">
+                <button class="btn btn-primary btn-full" onclick="transferOwnershipCheck()">转移管理员权限</button>
+            </div>
+            <div class="admin-actions" style="margin-top: 10px;">
+                <button class="btn btn-danger btn-full" onclick="renounceOwnership()">丢弃管理员权限</button>
+            </div>
+            <p style="font-size: 12px; color: #ff6b6b; margin-top: 10px;">⚠️ 丢弃权限后将无法恢复，请谨慎操作！</p>
+        </div>
+        <!-- IDO操作控制 -->
+        <div class="card">
+            <div class="card-title">
+                <i>🚀</i> IDO操作控制
+            </div>
+            <div style="padding: 15px; background-color: #e8f4fd; border-radius: 8px; margin-bottom: 15px;">
+                <p style="font-size: 14px; color: #4299e1; margin-bottom: 5px;">
+                    <i>⚠️ 操作提示：当前已筹份数 <b><span class="tokenOverNumber">0</span></b>，达标软顶（<span class="tokenMinNumber">0</span>），可提前结束IDO</i>
+                </p>
+                <p style="font-size: 12px; color: #666;">提前结束IDO将自动销毁剩余 <b><span class="remianTokenTotal">0</span> <span class="tokenSymbol">NAH</span></b> 代币，并触发结算流程</p>
+            </div>
+            <button class="btn btn-danger btn-full" onclick="overIdoPerparSwapCheckV1()">提前结束IDO并销毁剩余代币</button>
+            <button class="btn btn-secondary btn-full" style="margin-top: 10px;" onclick="overIdoPerparSwapCheckV2()">IDO结束销毁剩余代币</button>
+        </div>
+    </div>
+
+    <script>
+        
+        // 最大尺寸限制
+        const MAX_WIDTH = 96;
+        const MAX_HEIGHT = 96;
+        
+        // 获取DOM元素
+        const fileInput = document.getElementById('tokenLogoUpload');
+        const previewDiv = document.getElementById('tokenLogoDisplay');
+        // const statusDiv = document.getElementById('message');
+        
+        // 监听文件选择事件
+        fileInput.addEventListener('change', handleFileSelect);
+        // 处理文件选择
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 验证文件类型
+            if (!file.type.startsWith('image/')) {
+                return;
+            }
+            
+            // 验证文件大小（可选）
+            const maxSize = 5 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                tishi("图片太大")
+                return;
+            }
+            
+            // 处理图片并上传
+            processAndUploadImage(file);
+        }
+        
+        // 处理图片并上传
+        async function processAndUploadImage(file) {
+            try {
+                // 1. 加载图片
+                const image = await loadImage(file);
+                
+                // 2. 调整图片尺寸
+                const resizedData = await resizeImage(image);
+                
+                // 3. 显示预览
+                showPreview(resizedData);
+                
+                // 4. 上传图片
+                await uploadImage(resizedData.blob, tokenContractAddress+".png");
+                
+            } catch (error) {
+                console.error('处理图片失败:', error);
+            }
+        }
+        
+        // 加载图片
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const img = new Image();
+                
+                reader.onload = function(e) {
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('图片加载失败'));
+                    img.src = e.target.result;
+                };
+                
+                reader.onerror = () => reject(new Error('读取文件失败'));
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 调整图片尺寸
+        function resizeImage(image) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // 验证图片是否有效
+                    if (!image.complete || image.naturalWidth === 0) {
+                        reject(new Error('图片无效或未加载完成'));
+                        return;
+                    }
+                    
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 获取原始尺寸
+                    const originalWidth = image.naturalWidth || image.width;
+                    const originalHeight = image.naturalHeight || image.height;
+                    
+                    // 计算缩放比例
+                    let width = originalWidth;
+                    let height = originalHeight;
+                    
+                    if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+                        const ratio = Math.min(
+                            MAX_WIDTH / width,
+                            MAX_HEIGHT / height
+                        );
+                        width = Math.floor(width * ratio);
+                        height = Math.floor(height * ratio);
+                    }
+                    
+                    // 设置canvas尺寸
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // 绘制调整后的图片
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(image, 0, 0, width, height);
+                    
+                    // 转换为Blob（使用JPEG格式，质量80%，文件更小）
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            reject(new Error('转换为Blob失败'));
+                            return;
+                        }
+                        
+                        resolve({
+                            blob: blob,
+                            width: width,
+                            height: height,
+                            originalWidth: originalWidth,
+                            originalHeight: originalHeight,
+                            url: URL.createObjectURL(blob)
+                        });
+                        
+                    }, 'image/jpeg', 0.8); // 可以改为 'image/png' 如果需要透明背景
+                    
+                } catch (error) {
+                    reject(new Error(`调整图片尺寸失败: ${error.message}`));
+                }
+            });
+        }
+        
+        // 显示预览
+        function showPreview(resizedData) {
+            previewDiv.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = resizedData.url;
+            previewDiv.appendChild(img);
+            // 记得稍后清理URL对象
+            setTimeout(() => {
+                URL.revokeObjectURL(resizedData.url);
+            }, 1000);
+        }
+        
+        // 上传图片
+        async function uploadImage(blob, originalFilename) {
+            // 创建FormData
+            const formData = new FormData();
+            
+            // 生成新文件名（保留原扩展名）
+            const extension = originalFilename.split('.').pop();
+            const newFilename = `resized_${Date.now()}.${extension}`;
+            
+            formData.append('image', blob, newFilename);
+            formData.append('filename', originalFilename);
+            formData.append('overwrite', '1'); // 传递覆盖选项
+            // 发送到服务器上的 upload.php 文件
+            fetch('upload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.overwritten) {
+                    } else {
+                    }
+                } else {
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
