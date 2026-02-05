@@ -364,9 +364,9 @@
                 
                 // 准备上传数据
                 const uploadData = {
-                    filename: currentFile.name,
-                    content: base64String.split(',')[1], // 移除 data:image/... 前缀
-                    path: pathInput.value.trim() || undefined
+                    filename: pathInput,
+                    content: base64String.split(',')[1],
+                    path: ''
                 };
                 
                 // 重要：将 YOUR_VERCEL_APP_URL 替换为你的Vercel应用地址
